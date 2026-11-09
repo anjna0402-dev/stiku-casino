@@ -1,0 +1,10 @@
+{
+  "name": "stiku-casino",
+  "version": "1.0.0",
+  "description": "Stiku Casino Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,2607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stiku Casino - Desperado Wild Mastery</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Rye -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Rye&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            stake: {
+              dark: '#0f212e',
+              panel: '#1a2c38',
+              card: '#213743',
+              accent: '#00e701',
+              accentHover: '#00c701',
+              blue: '#1475e1',
+              text: '#b1bad2',
+              muted: '#557086'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            western: ['Rye', 'cursive']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0f212e;
+      color: #b1bad2;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f212e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #213743;
+      border-radius: 4px;
+    }
+
+    .slot-frame {
+      background: radial-gradient(circle at 50% 50%, #1a2c38 0%, #0f212e 100%);
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), 0 15px 35px rgba(0,0,0,0.6);
+    }
+
+    .btn-stiku-green {
+      background-color: #00e701;
+      color: #0f212e;
+      box-shadow: 0 4px 20px rgba(0, 231, 1, 0.35);
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-stiku-green:hover:not(:disabled) {
+      background-color: #1fff20;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 231, 1, 0.5);
+    }
+    .btn-stiku-green:disabled {
+      background-color: #2f4553;
+      color: #557086;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(3px, -2px); }
+      60% { transform: translate(-3px, -1px); }
+      80% { transform: translate(2px, 2px); }
+    }
+    .shake {
+      animation: shake 0.35s ease-in-out;
+    }
+
+    @keyframes fireGlow {
+      0%, 100% { text-shadow: 0 0 25px rgba(245, 158, 11, 0.9), 0 0 50px rgba(239, 68, 68, 0.7); transform: scale(1); }
+      50% { text-shadow: 0 0 40px rgba(245, 158, 11, 1), 0 0 80px rgba(239, 68, 68, 0.9); transform: scale(1.02); }
+    }
+    .fire-text {
+      animation: fireGlow 1.8s infinite ease-in-out;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0.8); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-120px) scale(1.05); opacity: 0; }
+    }
+    .balloon-float {
+      animation: floatUp 10s linear forwards;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased text-stone-200">
+
+  <!-- GLOBAL CASINO INITIAL LOADING OVERLAY (BLUISH THEME WITH STARS & DISCLAIMER) -->
+  <div id="casino-splash" class="fixed inset-0 bg-gradient-to-b from-[#091522] via-[#0f212e] to-[#070e17] z-50 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700">
+    <!-- Starfield canvas -->
+    <canvas id="stars-canvas" class="absolute inset-0 pointer-events-none opacity-60 w-full h-full"></canvas>
+
+    <div class="relative z-10 max-w-md w-full space-y-6 bg-stake-panel/80 border border-stake-card p-8 rounded-3xl backdrop-blur-md shadow-2xl">
+      <!-- Stiku Logo Header -->
+      <div class="flex items-center justify-center space-x-3">
+        <span class="w-12 h-12 rounded-2xl bg-stake-accent text-stake-dark flex items-center justify-center text-2xl font-black shadow-[0_0_20px_rgba(0,231,1,0.5)]">S</span>
+        <span class="text-3xl font-black tracking-widest text-white">STIKU</span>
+      </div>
+
+      <div class="space-y-1">
+        <h2 class="text-lg font-bold text-stake-text">WELCOME TO STIKU CASINO</h2>
+        <p class="text-[11px] text-stake-muted uppercase tracking-wider font-semibold">Provably Fair • Next-Gen Gaming Engine</p>
+      </div>
+
+      <!-- Loading Bar -->
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs font-mono font-bold text-stake-text px-1">
+          <span id="casino-load-status">LOADING STIKU CASINO...</span>
+          <span id="casino-load-pct">0%</span>
+        </div>
+        <div class="w-full bg-stake-dark rounded-xl h-3 overflow-hidden p-0.5 border border-stake-card">
+          <div id="casino-load-bar" class="bg-gradient-to-r from-stake-blue to-stake-accent h-full rounded-lg w-0 transition-all duration-100 shadow-[0_0_12px_rgba(20,117,225,0.8)]"></div>
+        </div>
+      </div>
+
+      <!-- Small Disclaimer -->
+      <div class="pt-2 border-t border-stake-card/60 space-y-1">
+        <span class="inline-block text-[10px] font-bold text-amber-400 bg-amber-500/10 px-3 py-0.5 rounded-full border border-amber-500/30">
+          ⚠️ 18+ ONLY • RESPONSIBLE GAMING
+        </span>
+        <p class="text-[10px] text-stone-500 leading-tight">
+          Please play responsibly. Games involve financial risk. Intended for entertainment purposes only.
+        </p>
+      </div>
+
+      <button id="btn-enter-casino" class="hidden w-full py-3.5 rounded-xl bg-stake-accent hover:bg-emerald-400 text-stake-dark font-black text-sm uppercase tracking-widest shadow-[0_0_25px_rgba(0,231,1,0.4)] transition transform hover:scale-[1.02]">
+        ENTER CASINO 🚀
+      </button>
+    </div>
+  </div>
+
+  <!-- INITIAL SLOT LAUNCH OVERLAY WITH AMBIENT SOUND RELIEF -->
+  <div id="intro-overlay" class="fixed inset-0 bg-[#070b10] z-50 hidden flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700">
+    <!-- Fire Particles Canvas -->
+    <canvas id="fire-canvas" class="absolute inset-0 pointer-events-none opacity-70 w-full h-full"></canvas>
+
+    <div class="relative z-10 max-w-lg w-full space-y-6 bg-stone-900/90 border border-amber-500/30 p-8 rounded-3xl backdrop-blur-md shadow-2xl">
+      <div class="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+        🔥 DESPERADO WILD MASTERY ENGINE 🔥
+      </div>
+
+      <div class="space-y-3">
+        <h1 class="font-western text-3xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-500 to-red-600 tracking-wider fire-text">
+          DESPERADO WILDS
+        </h1>
+        <h2 class="font-western text-lg md:text-xl text-stone-300 tracking-widest">
+          STIKU PROVABLY FAIR
+        </h2>
+      </div>
+
+      <div class="space-y-2">
+        <div class="text-[11px] text-amber-300 font-bold tracking-wider uppercase bg-stone-950/90 border border-amber-500/40 py-2 px-4 rounded-xl inline-block shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+          ⚠️ 18+ ONLY • RESPONSIBLE GAMING • 3X MAX WIN CAP
+        </div>
+        <p class="text-[10px] text-stone-500 tracking-widest uppercase">
+          Powered by Stiku Engine v4.2 • High Volatility Duel Mechanics
+        </p>
+      </div>
+
+      <div class="w-full bg-stone-950 rounded-2xl p-3 space-y-2 border border-stone-800 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
+        <div class="flex justify-between text-xs font-bold text-amber-300 px-1 font-mono">
+          <span id="loading-status">LOADING SLOT ENGINE...</span>
+          <span id="loading-pct">0%</span>
+        </div>
+        <div class="w-full bg-stone-900 rounded-xl h-3.5 overflow-hidden p-0.5 border border-stone-800">
+          <div id="loading-bar" class="bg-gradient-to-r from-amber-600 via-orange-500 to-red-600 h-full rounded-lg w-0 transition-all duration-100 shadow-[0_0_15px_rgba(245,158,11,0.8)]"></div>
+        </div>
+      </div>
+
+      <button id="btn-enter" class="hidden w-full py-4 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 text-white font-black text-lg tracking-widest shadow-[0_0_35px_rgba(239,68,68,0.6)] hover:scale-105 transition transform uppercase font-western cursor-pointer">
+        PLAY DESPERADO WILDS 🤠
+      </button>
+    </div>
+  </div>
+
+  <!-- TOP HEADER NAV BAR -->
+  <header class="h-16 bg-stake-panel border-b border-stone-800/80 px-4 flex items-center justify-between z-30 sticky top-0">
+    <div class="flex items-center space-x-6">
+      <div id="brand-logo" class="flex items-center space-x-2 font-black text-xl tracking-wider text-white cursor-pointer">
+        <span class="w-8 h-8 rounded-lg bg-stake-accent text-stake-dark flex items-center justify-center text-lg font-black">S</span>
+        <span class="tracking-widest">STIKU</span>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-1 text-sm font-semibold">
+        <button id="nav-casino" class="px-3 py-2 rounded-md bg-stake-card text-white flex items-center space-x-2">
+          <i class="fa-solid fa-gamepad text-stake-accent"></i>
+          <span>Casino</span>
+        </button>
+        <button id="nav-auth" class="px-3 py-2 rounded-md text-stake-text hover:text-white hover:bg-stake-card/50 transition flex items-center space-x-2">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span id="nav-auth-label">Sign Up / Login</span>
+        </button>
+        <button id="nav-mod" title="Moderator panel" class="px-3 py-2 rounded-md text-stake-text hover:text-white hover:bg-stake-card/50 transition">🛡 Mod</button>
+        <button id="nav-stats" class="px-3 py-2 rounded-md text-stake-text hover:text-white hover:bg-stake-card/50 transition flex items-center space-x-2"><i class="fa-solid fa-ranking-star text-amber-400"></i><span>Leaderboard &amp; Stats</span></button>
+        <span id="mode-badge" class="px-2 py-1 text-[10px] font-bold rounded bg-stake-card text-stake-text">…</span>
+        <span id="online-badge" class="px-3 py-2 text-xs font-bold text-stake-text cursor-pointer hover:text-white"><span class="text-stake-accent">●</span> <span id="online-count">0</span> online • <span id="acct-count">0</span> accounts</span>
+      </nav>
+    </div>
+
+    <!-- Balance & Wallet Header Controls -->
+    <div class="flex items-center space-x-3">
+      <div class="bg-stake-dark border border-stake-card rounded-lg p-1 px-3 flex items-center space-x-3">
+        <div class="flex flex-col text-right">
+          <span class="text-[9px] uppercase tracking-wider font-bold text-stake-muted">Wallet Balance</span>
+          <span id="balance-display" class="font-extrabold text-white text-sm md:text-base font-mono">$0.00</span>
+        </div>
+        <button id="btn-deposit" class="px-2.5 py-1 bg-stake-blue hover:bg-blue-600 text-white font-bold text-xs rounded transition">
+          Wallet
+        </button>
+        <button id="btn-tip" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded transition">Tip</button>
+        <button id="btn-promo" class="px-2 py-1 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded transition">🎁 Promo</button>
+        <button id="btn-withdraw" class="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded transition">
+          Withdraw
+        </button>
+      </div>
+
+      <button id="btn-sound" class="w-10 h-10 rounded-lg bg-stake-card hover:bg-stone-700 text-stake-text hover:text-white transition flex items-center justify-center">
+        <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+      </button>
+    </div>
+  </header>
+  <div id="mobile-bar" class="md:hidden flex items-center justify-between gap-2 px-3 py-2 bg-stake-panel border-b border-stone-800/80 text-xs font-bold">
+    <button id="m-auth" class="px-3 py-1.5 rounded-lg bg-stake-accent text-stake-dark font-black truncate max-w-[45%]"><span id="m-auth-label">Sign Up / Login</span></button>
+    <button id="m-mod" class="px-3 py-1.5 rounded-lg bg-stake-card text-white">🛡</button>
+    <button id="m-stats" class="px-3 py-1.5 rounded-lg bg-stake-card text-white">🏆 Stats</button>
+    <span id="m-mode" class="text-[10px] font-bold"></span>
+    <button id="m-online" class="px-1 py-1.5 text-stake-text"><span class="text-stake-accent">●</span> <span id="m-online-count">0</span> online • <span id="m-acct-count">0</span></button>
+  </div>
+
+  <!-- CASINO HOME LOBBY SCREEN -->
+  <div id="home-screen" class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8">
+    <!-- Hero Game Banner -->
+    <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-purple-950 via-stake-panel to-amber-950/60 border border-amber-500/30 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between shadow-2xl">
+      <div class="space-y-4 max-w-xl z-10">
+        <span class="inline-block px-3 py-1 rounded-full bg-stake-accent/10 border border-stake-accent/40 text-stake-accent font-black text-xs uppercase tracking-widest">
+          STIKU ORIGINAL EXCLUSIVE
+        </span>
+        <h1 class="font-western text-3xl md:text-5xl text-white tracking-wide leading-tight">
+          DESPERADO WILD MASTERY
+        </h1>
+        <p class="text-xs md:text-sm text-stake-text font-medium leading-relaxed">
+          High-volatility duel mechanics, VS multiplier reels up to 3x cap, and 3 high-tier 10 free spins bonus rounds.
+        </p>
+        <button id="hero-play-btn" class="btn-stiku-green px-8 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest flex items-center space-x-2">
+          <i class="fa-solid fa-play text-xs"></i>
+          <span>PLAY NOW</span>
+        </button>
+      </div>
+
+      <div class="mt-6 md:mt-0 w-64 md:w-72 aspect-[4/5] bg-gradient-to-b from-amber-950 to-stone-950 rounded-2xl border-2 border-amber-500/60 p-4 flex flex-col items-center justify-between shadow-[0_0_30px_rgba(245,158,11,0.2)]">
+        <div class="flex justify-between w-full text-[10px] font-bold text-amber-400">
+          <span class="bg-amber-900/60 px-2 py-0.5 rounded border border-amber-600/40">HOT</span>
+          <span>👁️ 4,821</span>
+        </div>
+        <div class="w-20 h-20 rounded-full bg-amber-500 text-stake-dark font-western font-bold text-2xl flex items-center justify-center border-4 border-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.6)]">
+          VS
+        </div>
+        <div class="text-center">
+          <h3 class="font-western text-amber-200 text-sm">DESPERADO WILD MASTERY</h3>
+          <span class="text-[10px] text-stake-accent font-black tracking-widest block mt-1">MAX WIN: 3x CAP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Games Drawer Section -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-bold text-lg text-white flex items-center space-x-2">
+          <i class="fa-solid fa-fire text-amber-500"></i>
+          <span>Stiku Originals & Slots</span>
+        </h2>
+        <span class="flex items-center space-x-3"><button id="lobby-stats" class="px-3 py-1.5 rounded-lg bg-stake-card hover:bg-stone-700 text-white text-xs font-bold">🏆 Top 20 &amp; My Stats</button><span class="text-xs font-bold text-stake-muted">16 Games Available</span></span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <!-- Desperado Wild Mastery Slot Card -->
+        <div id="slot-card-btn" class="bg-stake-panel border border-stake-card hover:border-amber-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-amber-900/80 to-red-950 flex flex-col items-center justify-center relative overflow-hidden mb-3 border border-amber-500/30">
+            <span class="absolute top-2 left-2 text-[9px] font-bold text-white bg-red-600 px-2 py-0.5 rounded uppercase">EXCLUSIVE</span>
+            <div class="w-12 h-12 rounded-full bg-amber-500 text-stake-dark font-western font-bold text-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              VS
+            </div>
+          </div>
+          <h3 class="font-bold text-xs text-white truncate">Desperado Wild Mastery</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]">
+            <span class="text-stake-accent font-bold">● Live</span>
+            <span class="text-amber-400 font-bold font-mono">3x Max Multiplier</span>
+          </div>
+        </div>
+
+        <!-- Mines Card -->
+        <div id="mines-card-btn" class="bg-stake-panel border border-stake-card hover:border-emerald-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-emerald-900/80 to-teal-950 flex flex-col items-center justify-center relative overflow-hidden mb-3 border border-emerald-500/30">
+            <span class="absolute top-2 left-2 text-[9px] font-bold text-white bg-emerald-600 px-2 py-0.5 rounded uppercase">ORIGINAL</span>
+            <div class="text-4xl group-hover:scale-110 transition-transform">💎</div>
+          </div>
+          <h3 class="font-bold text-xs text-white truncate">Mines</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]">
+            <span class="text-stake-accent font-bold">● Live</span>
+            <span class="text-emerald-400 font-bold font-mono">96.00% RTP</span>
+          </div>
+        </div>
+
+        <div id="dice-card-btn" data-fair="dice" class="bg-stake-panel border border-stake-card hover:border-sky-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-sky-900/70 to-stone-950 flex items-center justify-center mb-3 border border-sky-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🎲</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Dice</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-sky-400 font-bold font-mono">96.00% RTP</span></div>
+        </div>
+
+        <div id="flip-card-btn" data-fair="flip" class="bg-stake-panel border border-stake-card hover:border-amber-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-amber-900/70 to-stone-950 flex items-center justify-center mb-3 border border-amber-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🪙</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Coin Flip</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-amber-400 font-bold font-mono">96.00% RTP</span></div>
+        </div>
+
+        <div id="limbo-card-btn" data-fair="limbo" class="bg-stake-panel border border-stake-card hover:border-purple-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-purple-900/70 to-stone-950 flex items-center justify-center mb-3 border border-purple-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🚀</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Limbo</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-purple-400 font-bold font-mono">79.99% RTP</span></div>
+        </div>
+
+        <div id="plinko-card-btn" data-fair="plinko" class="bg-stake-panel border border-stake-card hover:border-pink-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-pink-900/70 to-stone-950 flex items-center justify-center mb-3 border border-pink-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🔮</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Plinko</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-pink-400 font-bold font-mono">79.99% RTP</span></div>
+        </div>
+
+        <div id="crash-card-btn" data-fair="crash" class="bg-stake-panel border border-stake-card hover:border-red-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-red-900/70 to-stone-950 flex items-center justify-center mb-3 border border-red-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">📈</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Crash</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-red-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="wheel-card-btn" data-fair="wheel" class="bg-stake-panel border border-stake-card hover:border-yellow-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-yellow-900/70 to-stone-950 flex items-center justify-center mb-3 border border-yellow-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🎡</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Lucky Wheel</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-yellow-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="keno-card-btn" data-fair="keno" class="bg-stake-panel border border-stake-card hover:border-teal-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-teal-900/70 to-stone-950 flex items-center justify-center mb-3 border border-teal-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🎱</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Keno</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-teal-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="towers-card-btn" data-fair="towers" class="bg-stake-panel border border-stake-card hover:border-cyan-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-cyan-900/70 to-stone-950 flex items-center justify-center mb-3 border border-cyan-500/30 relative"><span class="absolute top-2 left-2 text-[9px] font-bold text-white bg-cyan-600 px-2 py-0.5 rounded uppercase">ORIGINAL</span><div class="text-4xl group-hover:scale-110 transition-transform">🗼</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Towers</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-cyan-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="special-card-btn" data-fair="special" class="bg-stake-panel border border-stake-card hover:border-amber-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-amber-900/70 to-stone-950 flex items-center justify-center mb-3 border border-amber-500/30 relative"><span class="absolute top-2 left-2 text-[9px] font-bold text-white bg-amber-600 px-2 py-0.5 rounded uppercase">SLOT</span><div class="text-4xl group-hover:scale-110 transition-transform">🎰</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Stiku Special</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Slots</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-amber-400 font-bold font-mono">≈75% RTP</span></div>
+        </div>
+
+        <div id="rps-card-btn" data-fair="rps" class="bg-stake-panel border border-stake-card hover:border-lime-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-lime-900/70 to-stone-950 flex items-center justify-center mb-3 border border-lime-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">✂️</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Rock Paper Scissors</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-lime-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="roulette-card-btn" data-fair="roulette" class="bg-stake-panel border border-stake-card hover:border-rose-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-rose-900/70 to-stone-950 flex items-center justify-center mb-3 border border-rose-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">⭕</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Roulette</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-rose-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="hilo-card-btn" data-fair="hilo" class="bg-stake-panel border border-stake-card hover:border-indigo-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-indigo-900/70 to-stone-950 flex items-center justify-center mb-3 border border-indigo-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">🃏</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Hi-Lo</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-indigo-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="diamonds-card-btn" data-fair="diamonds" class="bg-stake-panel border border-stake-card hover:border-sky-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-sky-900/70 to-stone-950 flex items-center justify-center mb-3 border border-sky-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">💠</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Diamonds</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-sky-400 font-bold font-mono">75.00% RTP</span></div>
+        </div>
+
+        <div id="blackjack-card-btn" data-fair="blackjack" class="bg-stake-panel border border-stake-card hover:border-emerald-500/60 rounded-2xl p-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-emerald-900/70 to-stone-950 flex items-center justify-center mb-3 border border-emerald-500/30"><div class="text-4xl group-hover:scale-110 transition-transform">♠️</div></div>
+          <h3 class="font-bold text-xs text-white truncate">Blackjack</h3>
+          <p class="text-[10px] text-stake-muted truncate">Stiku Originals</p>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-stake-accent font-bold">● Live</span><span class="text-emerald-400 font-bold font-mono">≈75% RTP</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLOT GAME SCREEN -->
+  <div id="game-screen" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden relative">
+    <!-- Left Sidebar Game Controls -->
+    <aside class="w-full md:w-80 bg-stake-panel p-4 border-r border-stone-800/80 flex flex-col justify-between shrink-0 z-20">
+      <div class="space-y-4">
+        <div class="bg-stake-dark rounded-xl p-3 border border-stake-card flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-700 to-red-900 flex items-center justify-center text-amber-300 text-xl font-western border border-amber-600/40">
+              VS
+            </div>
+            <div>
+              <h2 class="font-western text-white text-base tracking-wide">DESPERADO WILDS</h2>
+              <p class="text-[11px] text-stake-muted font-medium">Stiku Original • 5x5 Reels</p>
+            </div>
+          </div>
+          <span class="text-xs font-black text-amber-500 bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded">HIGH VOL</span>
+        </div>
+
+        <div class="grid grid-cols-3 bg-stake-dark p-1 rounded-xl gap-1 border border-stake-card text-xs font-bold">
+          <button id="tab-manual" class="py-2 rounded-lg bg-stake-card text-white text-center">Manual</button>
+          <button id="tab-auto" class="py-2 rounded-lg text-stake-text hover:text-white text-center transition">Auto</button>
+          <button id="tab-buy" class="py-2 rounded-lg text-amber-400 hover:text-amber-300 text-center transition flex items-center justify-center space-x-1">
+            <i class="fa-solid fa-bolt text-[10px]"></i>
+            <span>Buy</span>
+          </button>
+        </div>
+
+        <!-- Bet Selector -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs font-bold text-stake-text">
+            <span>Bet Amount</span>
+            <span id="bet-rubles" class="text-stake-muted font-mono">$1.00 USD</span>
+          </div>
+          <div class="flex items-center bg-stake-dark border border-stake-card rounded-xl overflow-hidden focus-within:border-stake-muted transition">
+            <span class="pl-3 text-stake-muted font-bold text-sm">$</span>
+            <input id="bet-input" type="number" value="1.00" step="0.01" min="0.01" max="500.00" class="w-full bg-transparent px-2 py-2.5 text-white font-extrabold text-sm focus:outline-none">
+            <div class="flex items-center pr-1 space-x-1">
+              <button id="btn-bet-half" class="px-2 py-1 text-xs font-bold bg-stake-card hover:bg-stone-700 text-stake-text rounded">½</button>
+              <button id="btn-bet-double" class="px-2 py-1 text-xs font-bold bg-stake-card hover:bg-stone-700 text-stake-text rounded">2x</button>
+              <button id="btn-bet-max" class="px-2 py-1 text-xs font-bold bg-stake-card hover:bg-stone-700 text-amber-400 rounded">MAX</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Buy Buttons -->
+        <div class="space-y-2 pt-1">
+          <button id="btn-buy-train" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-stone-800 to-amber-950/80 border border-amber-800/60 hover:border-amber-500 text-left flex items-center justify-between group transition">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-train text-amber-500 group-hover:scale-110 transition-transform"></i>
+              <div>
+                <div class="text-xs font-black text-amber-200">GREAT TRAIN ROBBERY</div>
+                <div class="text-[10px] text-stone-400">10 FS • Sticky Wilds</div>
+              </div>
+            </div>
+            <span id="buy-train-cost-tag" class="text-xs font-black text-amber-400 font-mono">80x ($80.00)</span>
+          </button>
+
+          <button id="btn-buy-duel" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-stone-800 to-red-950/80 border border-red-800/60 hover:border-red-500 text-left flex items-center justify-between group transition">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-skull text-red-500 group-hover:scale-110 transition-transform"></i>
+              <div>
+                <div class="text-xs font-black text-red-200">DUEL AT DAWN</div>
+                <div class="text-[10px] text-stone-400">10 FS • High VS Multipliers</div>
+              </div>
+            </div>
+            <span id="buy-duel-cost-tag" class="text-xs font-black text-red-400 font-mono">100x ($100.00)</span>
+          </button>
+
+          <button id="btn-buy-dead" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-stone-800 to-purple-950/80 border border-purple-800/60 hover:border-purple-500 text-left flex items-center justify-between group transition">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-spade text-purple-400 group-hover:scale-110 transition-transform"></i>
+              <div>
+                <div class="text-xs font-black text-purple-200">DEAD MAN'S HAND</div>
+                <div class="text-[10px] text-stone-400">Collect Phase + Showdown</div>
+              </div>
+            </div>
+            <span id="buy-dead-cost-tag" class="text-xs font-black text-purple-300 font-mono">200x ($200.00)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-4 space-y-3">
+        <div class="flex items-center justify-between px-2 text-xs font-bold text-stake-text">
+          <span class="flex items-center space-x-1.5">
+            <i class="fa-solid fa-bolt text-amber-400"></i>
+            <span>Turbo Spin</span>
+          </span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input id="turbo-toggle" type="checkbox" class="sr-only peer">
+            <div class="w-9 h-5 bg-stake-card peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-stake-blue"></div>
+          </label>
+        </div>
+
+        <button id="btn-spin" class="btn-stiku-green w-full py-4 rounded-xl font-black text-base md:text-lg tracking-wider uppercase flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-rotate-right text-xl"></i>
+          <span id="spin-text">SPIN</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Game Viewport Container -->
+    <main class="flex-1 bg-stake-dark flex flex-col items-center justify-center p-3 md:p-6 relative overflow-hidden">
+      <div id="mode-banner" class="w-full max-w-2xl py-2 px-4 mb-3 rounded-xl bg-stake-panel border border-stake-card flex items-center justify-between transition-all duration-300">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-stake-accent animate-pulse"></span>
+          <span id="mode-title" class="font-bold text-xs md:text-sm text-white uppercase tracking-wider">BASE GAME</span>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <span id="spins-left-display" class="hidden font-extrabold text-xs bg-red-950/80 text-red-400 px-3 py-1 rounded-lg border border-red-800/60 animate-bounce">
+            FREE SPINS LEFT: <span id="spins-count">0</span>
+          </span>
+          <div class="bg-stake-dark px-3 py-1 rounded-lg border border-stake-card text-xs font-bold text-stake-text">
+            WIN: <span id="last-win-display" class="text-stake-accent font-extrabold">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="reel-box-wrapper" class="relative w-full max-w-2xl aspect-square md:aspect-[5/4] slot-frame rounded-2xl p-2 md:p-4 border border-stone-800 flex items-center justify-center shadow-2xl">
+        <canvas id="slot-canvas" class="w-full h-full rounded-xl cursor-pointer"></canvas>
+
+        <!-- 10 FREE SPINS FLASHING OVERLAY EFFECT -->
+        <div id="bonus-flash-overlay" class="absolute inset-0 bg-gradient-to-tr from-amber-600/90 via-red-900/90 to-purple-900/90 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 z-40 overflow-hidden text-center p-6 space-y-3">
+          <div class="w-20 h-20 rounded-full bg-amber-400 text-stake-dark font-western font-black text-3xl flex items-center justify-center animate-bounce shadow-[0_0_35px_rgba(251,191,36,0.8)]">
+            10
+          </div>
+          <h2 id="bonus-flash-title" class="font-western text-3xl md:text-5xl text-white tracking-widest fire-text">
+            10 FREE SPINS TRIGGERED!
+          </h2>
+          <p class="text-xs text-amber-200 font-bold uppercase tracking-widest">Auto-spinning high-volatility duels now</p>
+        </div>
+
+        <div id="win-overlay" class="absolute inset-0 bg-black/90 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 z-30 overflow-hidden">
+          <div id="win-badge" class="font-western text-xs px-4 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400 mb-2 tracking-widest uppercase">
+            OUTLAW WIN
+          </div>
+          <h2 id="win-type-text" class="font-western text-4xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700 tracking-wider mb-1 text-center drop-shadow-[0_5px_15px_rgba(245,158,11,0.8)]">
+            MEGA WIN!
+          </h2>
+          <div id="win-multiplier-text" class="font-bold text-amber-400 text-base md:text-xl mb-1 font-mono">3.0x BET</div>
+          <div id="win-amount-text" class="font-black text-3xl md:text-6xl text-white tracking-tight font-mono">$0.00</div>
+          <p class="text-xs text-stake-muted mt-6 tracking-widest uppercase animate-pulse font-semibold">Click anywhere to collect</p>
+        </div>
+      </div>
+
+      <!-- Live Session Stats Footer -->
+      <div class="w-full max-w-2xl mt-3 bg-stake-panel rounded-xl p-2.5 border border-stake-card flex items-center justify-between text-xs font-bold text-stake-text">
+        <div class="flex items-center space-x-4">
+          <div>TOTAL SLOT WIN: <span id="total-slot-win" class="text-stake-accent font-mono">$0.00</span></div>
+        </div>
+        <div>
+          PROFIT: <span id="session-profit" class="text-white font-mono">$0.00</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MINES GAME SCREEN -->
+  <div id="mines-screen" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden relative">
+    <aside class="w-full md:w-80 bg-stake-panel p-4 border-r border-stone-800/80 flex flex-col space-y-4 shrink-0 z-20 overflow-y-auto">
+      <div class="bg-stake-dark rounded-xl p-3 border border-stake-card flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-700 to-teal-900 flex items-center justify-center text-xl border border-emerald-600/40">💎</div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Mines</h3>
+            <p class="text-[10px] text-stake-muted">RTP <span id="mines-rtp-badge" class="text-stake-accent font-bold">96.00%</span> • 4% house edge</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-stake-muted">Bet Amount</label>
+        <div class="flex items-center bg-stake-dark border border-stake-card rounded-lg overflow-hidden">
+          <span class="pl-3 text-stake-muted font-bold">$</span>
+          <input id="mines-bet" type="number" step="0.01" min="0.01" value="1.00" class="flex-1 bg-transparent px-2 py-2.5 text-white font-mono font-bold text-sm outline-none">
+          <button id="mines-bet-half" class="px-3 py-2.5 text-xs font-bold bg-stake-card hover:bg-stone-700 text-stake-text">½</button>
+          <button id="mines-bet-double" class="px-3 py-2.5 text-xs font-bold bg-stake-card hover:bg-stone-700 text-stake-text border-l border-stake-dark">2×</button>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-stake-muted">Mines</label>
+        <select id="mines-count" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white font-bold text-sm outline-none"></select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-center">
+        <div class="bg-stake-dark rounded-lg p-2 border border-stake-card">
+          <div class="text-[9px] uppercase font-bold text-stake-muted">Gems left</div>
+          <div id="mines-gems-left" class="font-mono font-bold text-white">22</div>
+        </div>
+        <div class="bg-stake-dark rounded-lg p-2 border border-stake-card">
+          <div class="text-[9px] uppercase font-bold text-stake-muted">Next tile</div>
+          <div id="mines-next-mult" class="font-mono font-bold text-stake-accent">—</div>
+        </div>
+      </div>
+
+      <button id="mines-bet-btn" class="btn-stiku-green w-full py-3.5 rounded-xl font-black text-base uppercase tracking-wider">Bet</button>
+      <button id="mines-cash-btn" class="hidden w-full py-3.5 rounded-xl font-black text-base uppercase tracking-wider bg-amber-500 hover:bg-amber-400 text-stake-dark transition">
+        Cash Out <span id="mines-cash-amt" class="font-mono"></span>
+      </button>
+
+      <!-- Provably fair -->
+      <div class="bg-stake-dark rounded-xl p-3 border border-stake-card space-y-2 text-[10px]">
+        <div class="font-bold uppercase tracking-wider text-stake-text flex items-center space-x-1.5">
+          <i class="fa-solid fa-shield-halved text-stake-accent"></i><span>Provably Fair</span>
+        </div>
+        <div>
+          <div class="text-stake-muted font-bold uppercase">Next server seed (hash)</div>
+          <div id="mines-server-hash" class="font-mono text-stone-300 break-all">…</div>
+        </div>
+        <div>
+          <div class="text-stake-muted font-bold uppercase">Client seed</div>
+          <input id="mines-client-seed" class="w-full bg-stake-panel border border-stake-card rounded px-2 py-1 font-mono text-stone-200 outline-none">
+        </div>
+        <div class="text-stake-muted font-bold uppercase">Nonce: <span id="mines-nonce" class="text-stone-200 font-mono">0</span></div>
+        <div id="mines-prev-box" class="hidden border-t border-stake-card pt-2 space-y-1">
+          <div class="text-stake-muted font-bold uppercase">Previous server seed (revealed)</div>
+          <div id="mines-prev-seed" class="font-mono text-stone-300 break-all"></div>
+          <div id="mines-prev-check" class="font-bold"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 bg-stake-dark flex flex-col items-center justify-center p-3 md:p-6 overflow-y-auto">
+      <div class="w-full max-w-md mb-3 py-2 px-4 rounded-xl bg-stake-panel border border-stake-card flex items-center justify-between text-xs font-bold">
+        <span id="mines-status" class="text-white uppercase tracking-wider">Place a bet to start</span>
+        <span class="text-stake-text">Multiplier: <span id="mines-mult" class="text-stake-accent font-mono">1.00×</span></span>
+      </div>
+
+      <div id="mines-grid" class="w-full max-w-md grid grid-cols-5 gap-2 md:gap-3"></div>
+
+      <div class="w-full max-w-md mt-3 bg-stake-panel rounded-xl p-2.5 border border-stake-card flex items-center justify-between text-xs font-bold text-stake-text">
+        <div>LAST WIN: <span id="mines-last-win" class="text-stake-accent font-mono">$0.00</span></div>
+        <div>PROFIT: <span id="mines-profit" class="text-white font-mono">$0.00</span></div>
+      </div>
+
+      <details class="w-full max-w-md mt-3 bg-stake-panel rounded-xl border border-stake-card text-xs text-stake-text">
+        <summary class="cursor-pointer px-3 py-2.5 font-bold text-white">Game info, RTP &amp; verification</summary>
+        <div class="px-3 pb-3 space-y-3">
+          <p>Payout for <i>k</i> safe tiles = (1 ÷ chance of surviving <i>k</i> picks) × (1 − 0.04). Because of that, the RTP is the same <b class="text-white">96.00%</b> whatever the mine count or cash-out point.</p>
+          <div class="bg-stake-dark rounded-lg p-2 border border-stake-card font-mono">
+            Theoretical RTP (current mines, any cash-out): <span id="mines-theory-rtp" class="text-stake-accent font-bold"></span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="mines-sim-btn" class="px-3 py-2 rounded-lg bg-stake-blue hover:bg-blue-600 text-white font-bold">Simulate 200,000 rounds</button>
+            <span id="mines-sim-out" class="font-mono text-stone-300"></span>
+          </div>
+          <p class="text-stake-muted">Simulation: cash out after 3 safe tiles with the selected mine count, using Math.random.</p>
+          <div class="border-t border-stake-card pt-3 space-y-2">
+            <div class="font-bold text-white">Verify a round</div>
+            <input id="v-server" placeholder="Server seed" class="w-full bg-stake-dark border border-stake-card rounded px-2 py-1 font-mono outline-none">
+            <div class="grid grid-cols-3 gap-2">
+              <input id="v-client" placeholder="Client seed" class="bg-stake-dark border border-stake-card rounded px-2 py-1 font-mono outline-none">
+              <input id="v-nonce" placeholder="Nonce" type="number" class="bg-stake-dark border border-stake-card rounded px-2 py-1 font-mono outline-none">
+              <input id="v-mines" placeholder="Mines" type="number" min="1" max="24" class="bg-stake-dark border border-stake-card rounded px-2 py-1 font-mono outline-none">
+            </div>
+            <button id="v-btn" class="px-3 py-2 rounded-lg bg-stake-card hover:bg-stone-700 text-white font-bold">Verify</button>
+            <div id="v-out" class="font-mono text-stone-300 break-all"></div>
+            <p class="text-stake-muted">Algorithm: 24 floats from HMAC-SHA256(serverSeed, "clientSeed:nonce:r") for r = 0,1,2…; Fisher–Yates shuffle of tiles 0–24, taking the first N as mines.</p>
+          </div>
+        </div>
+      </details>
+    </main>
+  </div>
+
+  <!-- DICE / COIN FLIP SCREEN -->
+  <div id="fair-screen" class="hidden flex-1 flex flex-col md:flex-row overflow-hidden">
+    <aside class="w-full md:w-80 bg-stake-panel p-4 border-r border-stone-800/80 space-y-4 shrink-0 overflow-y-auto">
+      <div class="flex items-center justify-between"><h3 id="f-title" class="font-bold text-white"></h3><span class="text-[10px] text-stake-muted">RTP <b id="f-rtp" class="text-stake-accent">96.00%</b> • <span id="f-edge">4%</span> edge</span></div>
+      <div class="space-y-1.5"><label class="text-[10px] font-bold uppercase tracking-wider text-stake-muted">Bet Amount</label>
+        <div class="flex items-center bg-stake-dark border border-stake-card rounded-lg overflow-hidden"><span class="pl-3 text-stake-muted font-bold">$</span>
+          <input id="f-bet" type="number" step="0.01" min="0.01" value="1.00" class="flex-1 bg-transparent px-2 py-2.5 text-white font-mono font-bold text-sm outline-none">
+          <button id="f-half" class="px-3 py-2.5 text-xs font-bold bg-stake-card text-stake-text">½</button><button id="f-dbl" class="px-3 py-2.5 text-xs font-bold bg-stake-card text-stake-text border-l border-stake-dark">2×</button></div></div>
+      <div id="f-opts" class="space-y-3"></div>
+      <button id="f-go" class="btn-stiku-green w-full py-3.5 rounded-xl font-black text-base uppercase tracking-wider">Bet</button>
+      <div class="bg-stake-dark rounded-xl p-3 border border-stake-card space-y-2 text-[10px]">
+        <div class="font-bold uppercase tracking-wider text-stake-text"><i class="fa-solid fa-shield-halved text-stake-accent"></i> Provably Fair</div>
+        <div><div class="text-stake-muted font-bold uppercase">Next server seed (hash)</div><div id="f-hash" class="font-mono text-stone-300 break-all"></div></div>
+        <div><div class="text-stake-muted font-bold uppercase">Client seed</div><input id="f-client" class="w-full bg-stake-panel border border-stake-card rounded px-2 py-1 font-mono text-stone-200 outline-none"></div>
+        <div class="text-stake-muted font-bold uppercase">Nonce: <span id="f-nonce" class="text-stone-200 font-mono">0</span></div>
+        <div id="f-prev" class="hidden border-t border-stake-card pt-2 space-y-1"><div class="text-stake-muted font-bold uppercase">Previous server seed</div><div id="f-prev-seed" class="font-mono text-stone-300 break-all"></div><div id="f-prev-ok" class="font-bold"></div>
+          <div class="text-stake-muted">Dice/Coin Flip/Limbo/Crash/Wheel/Rock Paper Scissors (house = floor(f×3)) use the first 4 bytes of HMAC-SHA256(serverSeed, "client:nonce:0") ÷ 2³². Plinko uses the first 10 bytes (≥128 = right). Towers: 8 floats from the first 32 bytes (bomb = floor(f×3)). Stiku Special: a stream of floats from HMAC blocks :0, :1, :2… Roulette: pocket = floor(f×37). Hi-Lo: 16 cards from blocks :0 and :1. Diamonds: 5 gems, floor(f×7), from the first 20 bytes. Blackjack: 24 cards from blocks :0, :1, :2 (rank = floor(f×13)+1), dealt in order.</div></div>
+      </div>
+    </aside>
+    <main class="flex-1 bg-stake-dark flex flex-col items-center justify-center p-4 space-y-4">
+      <div id="f-stage" class="w-full max-w-md bg-stake-panel border border-stake-card rounded-2xl p-6 text-center space-y-3">
+        <div id="f-big" class="text-6xl font-black font-mono text-white">—</div>
+        <div id="f-msg" class="text-sm font-bold text-stake-text">Place a bet</div>
+        <div id="f-board"></div>
+        <div class="text-xs text-stake-muted">Multiplier <b id="f-mult" class="text-stake-accent font-mono"></b> • Win chance <b id="f-chance" class="text-white font-mono"></b></div>
+      </div>
+      <div id="f-hist" class="flex gap-1.5 flex-wrap justify-center max-w-md"></div>
+      <div class="text-xs font-bold text-stake-text">PROFIT: <span id="f-profit" class="text-white font-mono">$0.00</span></div>
+    </main>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+    <div class="bg-stake-panel border border-stone-700 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-center space-x-2"><span class="w-9 h-9 rounded-xl bg-stake-accent text-stake-dark flex items-center justify-center font-black">S</span><span class="text-2xl font-black tracking-widest text-white">STIKU</span></div>
+      <div class="grid grid-cols-2 gap-2"><button id="tab-login" class="py-2 rounded-lg font-bold text-xs"></button><button id="tab-register" class="py-2 rounded-lg font-bold text-xs"></button></div>
+      <input id="auth-user" autocomplete="username" maxlength="16" placeholder="Username (3-16 letters, numbers, _)" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm outline-none">
+      <input id="auth-pass" type="password" autocomplete="current-password" placeholder="Password (min 6 characters)" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm outline-none">
+      <input id="auth-pass2" type="password" autocomplete="new-password" placeholder="Confirm password" class="hidden w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm outline-none">
+      <div id="auth-mode" class="text-[11px] font-bold rounded-lg px-3 py-2 hidden"></div>
+      <div id="auth-err" class="text-xs font-bold text-red-400 min-h-[1rem]"></div>
+      <button id="auth-submit" class="btn-stiku-green w-full py-3 rounded-xl font-black text-sm uppercase tracking-wider"></button>
+      <p class="text-[10px] text-stone-500 leading-tight text-center">Passwords are salted and hashed in this browser and never shown or shared. 18+ only.</p>
+    </div>
+  </div>
+
+  <!-- TIP MODAL -->
+  <div id="tip-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-stake-panel border border-stone-700 rounded-2xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
+      <h3 class="font-bold text-white text-lg">💸 Tip a player</h3>
+      <input id="tip-to" maxlength="16" autocomplete="off" placeholder="Username (type to search all players)" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm outline-none">
+      <input id="tip-amt" type="number" min="0.10" step="0.01" placeholder="Amount ($)" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm outline-none">
+      <div id="tip-quick" class="flex gap-1.5"></div>
+      <input id="tip-note" maxlength="40" autocomplete="off" placeholder="Add a note (optional)" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2 text-white text-xs outline-none">
+      <div id="tip-recent" class="flex flex-wrap gap-1.5"></div>
+      <div><div class="text-[10px] font-bold uppercase text-stake-muted mb-1">All players (<span id="tip-total">0</span>) • <span class="text-stake-accent">●</span> online</div><div id="tip-online" class="space-y-1 max-h-40 overflow-y-auto"></div></div>
+      <div id="tip-msg" class="text-xs font-bold min-h-[1rem]"></div>
+      <div class="grid grid-cols-2 gap-3"><button id="tip-cancel" class="py-3 rounded-xl bg-stake-card text-stake-text font-bold text-xs uppercase">Close</button><button id="tip-send" class="py-3 rounded-xl btn-stiku-green font-black text-xs uppercase">Send tip</button></div>
+      <div><div class="text-[10px] font-bold uppercase text-stake-muted mb-1">Your recent tips</div><div id="tip-log" class="text-[11px] text-stone-300 space-y-0.5 max-h-24 overflow-y-auto"></div></div>
+    </div>
+  </div>
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] hidden bg-stake-card border border-stake-accent/50 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-2xl"></div>
+
+  <!-- STATS / LEADERBOARD MODAL -->
+  <div id="stats-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-stake-panel border border-stone-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="p-4 flex items-center justify-between border-b border-stake-card">
+        <div class="flex gap-2"><button id="st-tab-top" class="px-3 py-2 rounded-lg text-xs font-bold"></button><button id="st-tab-me" class="px-3 py-2 rounded-lg text-xs font-bold"></button></div>
+        <button id="st-close" class="w-8 h-8 rounded-lg bg-stake-card text-stake-text hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="st-body" class="p-4 overflow-y-auto text-sm"></div>
+    </div>
+  </div>
+
+  <!-- PROMO MODAL -->
+  <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-stake-panel border border-stone-700 rounded-2xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
+      <h3 class="font-bold text-white text-lg">🎁 Redeem promo code</h3>
+      <input id="promo-code" maxlength="32" autocomplete="off" placeholder="Enter code" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm font-mono uppercase outline-none">
+      <div id="promo-msg" class="text-xs font-bold min-h-[1rem]"></div>
+      <div class="grid grid-cols-2 gap-3"><button id="promo-close" class="py-3 rounded-xl bg-stake-card text-stake-text font-bold text-xs uppercase">Close</button><button id="promo-go" class="py-3 rounded-xl btn-stiku-green font-black text-xs uppercase">Redeem</button></div>
+      <div><div class="text-[10px] font-bold uppercase text-stake-muted mb-1">Your redeemed codes</div><div id="promo-log" class="text-[11px] text-stone-300 space-y-0.5"></div></div>
+    </div>
+  </div>
+
+  <!-- MOD PANEL -->
+  <div id="mod-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-stake-panel border border-stone-700 rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl">
+      <div class="p-4 flex items-center justify-between border-b border-stake-card"><h3 class="font-bold text-white">🛡 Moderator panel — casino stats</h3><button id="mod-close" class="w-8 h-8 rounded-lg bg-stake-card text-stake-text hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
+      <div id="mod-login" class="p-6 space-y-3 max-w-sm">
+        <p class="text-xs text-stone-400">Enter the moderator key to continue.</p>
+        <input id="mod-key" type="password" autocomplete="off" placeholder="Moderator key" class="w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white text-sm outline-none">
+        <div id="mod-err" class="text-xs font-bold text-red-400 min-h-[1rem]"></div>
+        <button id="mod-go" class="btn-stiku-green w-full py-3 rounded-xl font-black text-sm uppercase">Unlock</button>
+      </div>
+      <div id="mod-body" class="hidden p-4 overflow-y-auto text-sm space-y-5"></div>
+    </div>
+  </div>
+
+  <!-- 2-STEP FEATURE BUY CONFIRMATION MODAL -->
+  <div id="buy-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-stake-panel border border-stone-700 rounded-2xl max-w-sm w-full p-6 space-y-5 text-center shadow-2xl relative">
+      <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl border border-amber-500/40">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      <div>
+        <h3 id="buy-modal-title" class="font-western text-white text-lg tracking-wide">CONFIRM FEATURE BUY</h3>
+        <p id="buy-modal-subtitle" class="text-xs text-stake-muted mt-1">Unlock 10 Free Spins with high-volatility duels</p>
+      </div>
+
+      <div class="bg-stake-dark p-3.5 rounded-xl border border-stake-card flex justify-between items-center text-xs">
+        <span class="text-stake-muted font-bold uppercase">Total Cost:</span>
+        <span id="buy-modal-cost" class="text-amber-400 font-extrabold text-base font-mono">$80.00</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-cancel-buy" class="py-3 rounded-xl bg-stake-card hover:bg-stone-700 text-stake-text font-bold text-xs uppercase">Cancel</button>
+        <button id="btn-confirm-buy" class="py-3 rounded-xl btn-stiku-green font-black text-xs uppercase">Confirm & Buy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // AUDIO SYNTHESIZER
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+      playAmbientRelief() {
+        if (this.muted || !this.ctx) return;
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.12);
+          gain.gain.setValueAtTime(0, this.ctx.currentTime + idx * 0.12);
+          gain.gain.linearRampToValueAtTime(0.08, this.ctx.currentTime + idx * 0.12 + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + idx * 0.12 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.12);
+          osc.stop(this.ctx.currentTime + idx * 0.12 + 0.6);
+        });
+      }
+      playSpin() {
+        if (this.muted || !this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+      playPop() {
+        if (this.muted || !this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      playWin() {
+        if (this.muted || !this.ctx) return;
+        const notes = [261.63, 329.63, 392.00, 523.25];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, this.ctx.currentTime + idx * 0.08);
+          gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + idx * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.08);
+          osc.stop(this.ctx.currentTime + idx * 0.08 + 0.3);
+        });
+      }
+    }
+    const soundFX = new SoundFX();
+
+    // GAME STATE
+    let state = {
+      balance: 0.00,
+      bet: 1.00,
+      sessionProfit: 0.00,
+      totalSlotWin: 0.00,
+      isSpinning: false,
+      isTurbo: false,
+      gameMode: 'NORMAL',
+      freeSpinsLeft: 0,
+      grid: [],
+      reelOffsets: [0, 0, 0, 0, 0],
+      vsDuels: [],
+      pendingBuy: null
+    };
+
+    const SYMBOLS = [
+      { id: 'skull', label: '💀', color: '#ef4444', pay: 3.0 },
+      { id: 'badge', label: '🤠', color: '#f59e0b', pay: 2.5 },
+      { id: 'gun', label: '🔫', color: '#3b82f6', pay: 2.0 },
+      { id: 'bottle', label: '🍾', color: '#10b981', pay: 1.5 },
+      { id: 'a', label: 'A', color: '#9ca3af', pay: 1.2 },
+      { id: 'k', label: 'K', color: '#9ca3af', pay: 1.0 },
+      { id: 'vs', label: 'VS', color: '#eab308', isVS: true, pay: 3.0 },
+      { id: 'scatter', label: '⭐', color: '#f43f5e', isScatter: true, pay: 0 }
+    ];
+
+    const MULTIPLIERS = [1.2, 1.5, 1.8, 2.0, 2.5, 3.0];
+
+    // ELEMENT REFS
+    const casinoSplash = document.getElementById('casino-splash');
+    const introOverlay = document.getElementById('intro-overlay');
+    const homeScreen = document.getElementById('home-screen');
+    const gameScreen = document.getElementById('game-screen');
+
+    // 1. GLOBAL CASINO SPLASH LOAD (STARS + SOFT BLUEISH THEME + DISCLAIMER)
+    function startCasinoGlobalLoading() {
+      let progress = 0;
+      const bar = document.getElementById('casino-load-bar');
+      const pct = document.getElementById('casino-load-pct');
+      const btn = document.getElementById('btn-enter-casino');
+      const status = document.getElementById('casino-load-status');
+
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 10) + 8;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          status.innerText = "CASINO LOADED!";
+          btn.classList.remove('hidden');
+        }
+        bar.style.width = `${progress}%`;
+        pct.innerText = `${progress}%`;
+      }, 80);
+    }
+
+    document.getElementById('btn-enter-casino').addEventListener('click', () => {
+      soundFX.init();
+      soundFX.playAmbientRelief();
+      casinoSplash.style.opacity = '0';
+      setTimeout(() => {
+        casinoSplash.classList.add('hidden');
+        homeScreen.classList.remove('hidden');
+      }, 700);
+    });
+
+    startCasinoGlobalLoading();
+
+    // SOFT BACKGROUND STARS CANVAS FOR CASINO SPLASH
+    const starsCanvas = document.getElementById('stars-canvas');
+    const starsCtx = starsCanvas.getContext('2d');
+    function resizeStars() {
+      starsCanvas.width = window.innerWidth;
+      starsCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeStars);
+    resizeStars();
+
+    const starsList = Array.from({ length: 90 }, () => ({
+      x: Math.random() * starsCanvas.width,
+      y: Math.random() * starsCanvas.height,
+      radius: Math.random() * 1.8 + 0.5,
+      alpha: Math.random() * 0.8 + 0.2,
+      speed: Math.random() * 0.015 + 0.005
+    }));
+
+    function renderStars() {
+      starsCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+      starsList.forEach(s => {
+        s.alpha += s.speed;
+        if (s.alpha > 1 || s.alpha < 0.2) s.speed = -s.speed;
+        starsCtx.save();
+        starsCtx.globalAlpha = s.alpha;
+        starsCtx.fillStyle = '#60a5fa';
+        starsCtx.beginPath();
+        starsCtx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        starsCtx.fill();
+        starsCtx.restore();
+      });
+      requestAnimationFrame(renderStars);
+    }
+    renderStars();
+
+    // 2. LAUNCH DEDICATED SLOT LOADING SCREEN WHEN SLOT IS CLICKED
+    function triggerSlotLoadingSequence() {
+      introOverlay.classList.remove('hidden');
+      introOverlay.style.opacity = '1';
+
+      let progress = 0;
+      const bar = document.getElementById('loading-bar');
+      const pct = document.getElementById('loading-pct');
+      const btn = document.getElementById('btn-enter');
+      const status = document.getElementById('loading-status');
+
+      bar.style.width = '0%';
+      pct.innerText = '0%';
+      btn.classList.add('hidden');
+      status.innerText = "LOADING SLOT ENGINE & SOUND RELIEF...";
+
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 12) + 6;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          status.innerText = "SLOT ENGINE READY!";
+          btn.classList.remove('hidden');
+        }
+        bar.style.width = `${progress}%`;
+        pct.innerText = `${progress}%`;
+      }, 70);
+    }
+
+    document.getElementById('btn-enter').addEventListener('click', () => {
+      soundFX.init();
+      soundFX.playAmbientRelief();
+      introOverlay.style.opacity = '0';
+      setTimeout(() => {
+        introOverlay.classList.add('hidden');
+        homeScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        resizeSlotCanvas();
+      }, 600);
+    });
+
+    // FIRE CANVAS FOR SLOT INTRO
+    const fireCanvas = document.getElementById('fire-canvas');
+    const fireCtx = fireCanvas.getContext('2d');
+    function resizeFire() {
+      fireCanvas.width = window.innerWidth;
+      fireCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeFire);
+    resizeFire();
+
+    const particles = Array.from({ length: 120 }, () => ({
+      x: Math.random() * fireCanvas.width,
+      y: fireCanvas.height + Math.random() * 200,
+      radius: Math.random() * 4 + 1.5,
+      speedY: Math.random() * 3 + 1,
+      speedX: (Math.random() - 0.5) * 2,
+      color: Math.random() > 0.4 ? '#f59e0b' : '#ef4444',
+      alpha: Math.random()
+    }));
+
+    function renderFire() {
+      fireCtx.clearRect(0, 0, fireCanvas.width, fireCanvas.height);
+      particles.forEach(p => {
+        p.y -= p.speedY;
+        p.x += p.speedX;
+        if (p.y < -10) {
+          p.y = fireCanvas.height + 20;
+          p.x = Math.random() * fireCanvas.width;
+        }
+        fireCtx.save();
+        fireCtx.globalAlpha = p.alpha;
+        fireCtx.fillStyle = p.color;
+        fireCtx.beginPath();
+        fireCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        fireCtx.fill();
+        fireCtx.restore();
+      });
+      requestAnimationFrame(renderFire);
+    }
+    renderFire();
+
+    // ROUTING
+    document.getElementById('hero-play-btn').addEventListener('click', () => {
+      triggerSlotLoadingSequence();
+    });
+
+    document.getElementById('slot-card-btn').addEventListener('click', () => {
+      triggerSlotLoadingSequence();
+    });
+
+    document.getElementById('brand-logo').addEventListener('click', () => {
+      gameScreen.classList.add('hidden');
+      homeScreen.classList.remove('hidden');
+    });
+
+    // REEL CANVAS ENGINE
+    const canvas = document.getElementById('slot-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeSlotCanvas() {
+      const wrapper = document.getElementById('reel-box-wrapper');
+      const rect = wrapper.getBoundingClientRect();
+      canvas.width = (rect.width - 24) * window.devicePixelRatio;
+      canvas.height = (rect.height - 24) * window.devicePixelRatio;
+    }
+    window.addEventListener('resize', resizeSlotCanvas);
+
+    function createGrid() {
+      return Array.from({ length: 5 }, () =>
+        Array.from({ length: 5 }, () => {
+          const rand = Math.random();
+          if (rand < 0.08) return SYMBOLS.find(s => s.id === 'vs');
+          if (rand < 0.12) return SYMBOLS.find(s => s.id === 'scatter');
+          const std = SYMBOLS.filter(s => !s.isVS && !s.isScatter);
+          return std[Math.floor(Math.random() * std.length)];
+        })
+      );
+    }
+
+    state.grid = createGrid();
+
+    function drawSlot() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const colW = canvas.width / 5;
+      const rowH = canvas.height / 5;
+
+      for (let c = 0; c < 5; c++) {
+        for (let r = 0; r < 5; r++) {
+          const x = c * colW;
+          const y = r * rowH;
+          ctx.fillStyle = (c + r) % 2 === 0 ? '#1a2c38' : '#142430';
+          ctx.fillRect(x + 2, y + 2, colW - 4, rowH - 4);
+        }
+      }
+
+      for (let c = 0; c < 5; c++) {
+        const offset = state.reelOffsets[c];
+        for (let r = 0; r < 5; r++) {
+          const x = c * colW + colW / 2;
+          const y = (r * rowH + rowH / 2 + offset) % canvas.height;
+          const sym = state.grid[r][c];
+
+          ctx.save();
+          ctx.font = `${rowH * 0.45}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          if (sym.id === 'vs') {
+            ctx.fillStyle = '#eab308';
+            ctx.font = `black ${rowH * 0.4}px Rye, cursive`;
+            ctx.fillText('VS', x, y);
+          } else {
+            ctx.fillStyle = sym.color;
+            ctx.fillText(sym.label, x, y);
+          }
+          ctx.restore();
+        }
+      }
+
+      state.vsDuels.forEach(duel => {
+        const x = duel.col * colW;
+        ctx.save();
+        ctx.fillStyle = 'rgba(234, 179, 8, 0.9)';
+        ctx.fillRect(x + 4, 4, colW - 8, canvas.height - 8);
+
+        ctx.font = `bold ${colW * 0.25}px Rye, cursive`;
+        ctx.fillStyle = '#0f212e';
+        ctx.textAlign = 'center';
+        ctx.fillText('WILDS', x + colW / 2, canvas.height / 2 - 20);
+        ctx.font = `bold ${colW * 0.35}px Inter, sans-serif`;
+        ctx.fillText(`${duel.mult.toFixed(1)}x`, x + colW / 2, canvas.height / 2 + 20);
+        ctx.restore();
+      });
+
+      requestAnimationFrame(drawSlot);
+    }
+    requestAnimationFrame(drawSlot);
+
+    // SPIN MATH & LOGIC (MAX 3.0X STRATEGY CAP)
+    function spin() {
+      if (state.isSpinning) return;
+      if (state.balance < state.bet && state.freeSpinsLeft <= 0) {
+        alert("Insufficient balance!");
+        return;
+      }
+
+      soundFX.init();
+      if (state.freeSpinsLeft <= 0) {
+        state.balance -= state.bet;
+        state.sessionProfit -= state.bet;
+        window.Stats && Stats.bet('slot', state.bet);
+      } else {
+        state.freeSpinsLeft--;
+      }
+
+      updateUI();
+      state.isSpinning = true;
+      state.vsDuels = [];
+
+      const duration = state.isTurbo ? 400 : 900;
+      const start = performance.now();
+
+      const spinInterval = setInterval(() => {
+        const elapsed = performance.now() - start;
+        for (let c = 0; c < 5; c++) {
+          state.reelOffsets[c] = (state.reelOffsets[c] + 25) % canvas.height;
+        }
+        soundFX.playSpin();
+
+        if (elapsed >= duration) {
+          clearInterval(spinInterval);
+          stopSpin();
+        }
+      }, 30);
+    }
+
+    function stopSpin() {
+      state.grid = createGrid();
+      state.reelOffsets = [0, 0, 0, 0, 0];
+      state.isSpinning = false;
+
+      let vsCols = [];
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 5; c++) {
+          if (state.grid[r][c].isVS) vsCols.push(c);
+        }
+      }
+
+      if (vsCols.length > 0) {
+        vsCols.forEach(col => {
+          const mult = MULTIPLIERS[Math.floor(Math.random() * MULTIPLIERS.length)];
+          state.vsDuels.push({ col, mult });
+        });
+        document.getElementById('reel-box-wrapper').classList.add('shake');
+        setTimeout(() => document.getElementById('reel-box-wrapper').classList.remove('shake'), 400);
+      }
+
+      // REAL CASINO VOLATILITY STRATEGY: MIXED WINS, LOSSES & BIG BONUS HITS
+      let winMult = 0;
+      const isBonusActive = state.freeSpinsLeft > 0 || state.gameMode !== 'BASE GAME';
+
+      if (isBonusActive) {
+        // High-Volatility Bonus Mode: Real chance of dead spins mixed with massive payouts
+        const bonusHitChance = Math.random();
+        if (vsCols.length > 0 && bonusHitChance < 0.70) {
+          winMult = state.vsDuels.reduce((acc, d) => acc + d.mult, 0) * (0.8 + Math.random() * 2.0);
+        } else if (bonusHitChance < 0.35) {
+          winMult = 1.2 + (Math.random() * 5.0); // Average bonus hit
+        } else if (bonusHitChance < 0.12) {
+          winMult = 6.0 + (Math.random() * 14.0); // Big bonus hit!
+        } else {
+          winMult = 0; // Realistic bonus dead spin!
+        }
+        winMult = Math.min(20.0, winMult);
+      } else {
+        // Balanced Base Mode: Frequent smaller payouts
+        const hitChance = Math.random();
+        if (vsCols.length > 0 && hitChance < 0.6) {
+          winMult = 0.8 + (Math.random() * 1.5);
+        } else if (hitChance < 0.40) {
+          winMult = 0.3 + (Math.random() * 0.9);
+        } else {
+          winMult = 0; // Base dead spin
+        }
+        winMult = Math.min(3.0, winMult);
+      }
+
+      const totalWin = winMult * state.bet;
+      if (totalWin > 0) {
+        state.balance += totalWin;
+        state.sessionProfit += totalWin;
+        state.totalSlotWin += totalWin;
+        window.Stats && Stats.pay('slot', totalWin, state.bet);
+        soundFX.playWin();
+
+        document.getElementById('last-win-display').innerText = `$${totalWin.toFixed(2)}`;
+
+        if (winMult >= 2.0) {
+          triggerWinOverlay(winMult, totalWin);
+        }
+      } else {
+        document.getElementById('last-win-display').innerText = `$0.00`;
+      }
+
+      updateUI();
+
+      // AUTO-CONTINUE 10 FREE SPINS
+      if (state.freeSpinsLeft > 0) {
+        setTimeout(spin, state.isTurbo ? 350 : 850);
+      }
+    }
+
+    // TRIGGER WIN OVERLAY POPUP
+    function triggerWinOverlay(mult, winAmt) {
+      const overlay = document.getElementById('win-overlay');
+      const winType = document.getElementById('win-type-text');
+      const winMult = document.getElementById('win-multiplier-text');
+      const winAmtText = document.getElementById('win-amount-text');
+
+      if (mult >= 2.8) winType.innerText = 'MEGA WIN!';
+      else if (mult >= 2.0) winType.innerText = 'BIG WIN!';
+      else winType.innerText = 'OUTLAW WIN!';
+
+      winMult.innerText = `${mult.toFixed(1)}x BET`;
+      winAmtText.innerText = `$${winAmt.toFixed(2)}`;
+
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'auto';
+
+      const closeHandler = () => {
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+        overlay.removeEventListener('click', closeHandler);
+      };
+      overlay.addEventListener('click', closeHandler);
+    }
+
+    // 2-STEP FEATURE BUY CONFIRMATION
+    const buyModal = document.getElementById('buy-modal');
+    function triggerBuyConfirmation(type, name, rate) {
+      if (state.freeSpinsLeft > 0 || state.isSpinning) {
+        alert("Cannot purchase bonus while spin/bonus is active!");
+        return;
+      }
+
+      const cost = state.bet * rate;
+      state.pendingBuy = { type, name, cost };
+
+      document.getElementById('buy-modal-title').innerText = `CONFIRM ${name}`;
+      document.getElementById('buy-modal-cost').innerText = `$${cost.toFixed(2)}`;
+
+      buyModal.style.opacity = '1';
+      buyModal.style.pointerEvents = 'auto';
+    }
+
+    document.getElementById('btn-buy-train').addEventListener('click', () => triggerBuyConfirmation('train', 'GREAT TRAIN ROBBERY', 80));
+    document.getElementById('btn-buy-duel').addEventListener('click', () => triggerBuyConfirmation('duel', 'DUEL AT DAWN', 100));
+    document.getElementById('btn-buy-dead').addEventListener('click', () => triggerBuyConfirmation('dead', "DEAD MAN'S HAND", 200));
+
+    document.getElementById('btn-cancel-buy').addEventListener('click', () => {
+      buyModal.style.opacity = '0';
+      buyModal.style.pointerEvents = 'none';
+      state.pendingBuy = null;
+    });
+
+    document.getElementById('btn-confirm-buy').addEventListener('click', () => {
+      if (!state.pendingBuy) return;
+      const { name, cost } = state.pendingBuy;
+
+      if (state.balance < cost) {
+        alert("Insufficient funds for Feature Buy!");
+        return;
+      }
+
+      state.balance -= cost;
+      state.sessionProfit -= cost;
+      window.Stats && Stats.bet('slot', cost);
+      state.freeSpinsLeft = 10;
+      state.gameMode = name;
+
+      buyModal.style.opacity = '0';
+      buyModal.style.pointerEvents = 'none';
+      state.pendingBuy = null;
+
+      // FLASH 10 FREE SPINS OVERLAY EFFECT
+      const flashOverlay = document.getElementById('bonus-flash-overlay');
+      document.getElementById('bonus-flash-title').innerText = `10 FREE SPINS: ${name}!`;
+      flashOverlay.style.opacity = '1';
+
+      setTimeout(() => {
+        flashOverlay.style.opacity = '0';
+        updateUI();
+        spin();
+      }, 1500);
+    });
+
+    // WAGER-SCALED FLOATING BONUS BALLOON ($0.01 - $0.03)
+    function spawnBalloon() {
+      const balloon = document.createElement('div');
+      balloon.className = 'fixed z-40 cursor-pointer balloon-float flex flex-col items-center justify-center';
+      balloon.style.left = `${Math.random() * 80 + 10}%`;
+
+      // Scale gift amount according to bet ($0.01 to $0.03)
+      const giftAmount = Math.min(0.03, Math.max(0.01, parseFloat((state.bet * 0.02).toFixed(2))));
+
+      balloon.innerHTML = `
+        <div class="w-12 h-14 bg-gradient-to-tr from-red-600 via-pink-500 to-amber-400 rounded-full border-2 border-white/60 shadow-[0_0_20px_rgba(239,68,68,0.8)] flex items-center justify-center text-xs font-black text-white">
+          +$${giftAmount.toFixed(2)}
+        </div>
+        <div class="w-1 h-8 bg-white/40"></div>
+      `;
+
+      document.body.appendChild(balloon);
+
+      const burstTimer = setTimeout(() => {
+        balloon.remove();
+      }, 10000);
+
+      balloon.addEventListener('click', () => {
+        clearTimeout(burstTimer);
+        soundFX.playPop();
+        state.balance += giftAmount;
+        state.sessionProfit += giftAmount;
+        window.Stats && Stats.gift && Stats.gift(giftAmount);
+        updateUI();
+
+        balloon.innerHTML = `<span class="text-stake-accent font-black text-sm animate-ping">+$${giftAmount.toFixed(2)}</span>`;
+        setTimeout(() => balloon.remove(), 400);
+      });
+    }
+
+    setInterval(() => {
+      if (Math.random() < 0.5 && window.StikuUser && StikuUser()) spawnBalloon();
+    }, 120000);
+
+    // DISCORD WALLET & WITHDRAW NOTIFICATIONS
+    function showDiscordWalletInfo() {
+      alert("💬 STIKU DISCORD MANUAL PROCESSING\n\n- Min Deposit: $0.30 USD\n- Min Withdrawal: $2.00 USD\n\nPlease visit our Discord server to process all deposits and withdrawals manually with an admin!");
+    }
+
+    document.getElementById('btn-deposit').addEventListener('click', showDiscordWalletInfo);
+    document.getElementById('btn-withdraw').addEventListener('click', showDiscordWalletInfo);
+
+    // UI UPDATE & BET LOCK
+    function updateUI() {
+      document.getElementById('balance-display').innerText = `$${state.balance.toFixed(2)}`;
+      document.getElementById('session-profit').innerText = `$${state.sessionProfit.toFixed(2)}`;
+      document.getElementById('total-slot-win').innerText = `$${state.totalSlotWin.toFixed(2)}`;
+      document.getElementById('mode-title').innerText = state.gameMode;
+
+      // Lock Bet Controls during bonus or spin
+      const inBonus = state.freeSpinsLeft > 0 || state.gameMode !== 'BASE GAME';
+      document.getElementById('bet-input').disabled = inBonus || state.isSpinning;
+      document.getElementById('btn-bet-half').disabled = inBonus || state.isSpinning;
+      document.getElementById('btn-bet-double').disabled = inBonus || state.isSpinning;
+      document.getElementById('btn-bet-max').disabled = inBonus || state.isSpinning;
+
+      document.getElementById('buy-train-cost-tag').innerText = `80x ($${(state.bet * 80).toFixed(2)})`;
+      document.getElementById('buy-duel-cost-tag').innerText = `100x ($${(state.bet * 100).toFixed(2)})`;
+      document.getElementById('buy-dead-cost-tag').innerText = `200x ($${(state.bet * 200).toFixed(2)})`;
+
+      if (state.freeSpinsLeft > 0) {
+        document.getElementById('spins-left-display').classList.remove('hidden');
+        document.getElementById('spins-count').innerText = state.freeSpinsLeft;
+      } else {
+        document.getElementById('spins-left-display').classList.add('hidden');
+        if (!state.isSpinning) state.gameMode = 'BASE GAME';
+      }
+
+      document.getElementById('btn-spin').disabled = state.isSpinning || state.freeSpinsLeft > 0;
+      document.getElementById('spin-text').innerText = state.isSpinning ? 'SPINNING' : state.freeSpinsLeft > 0 ? 'AUTO BONUS' : 'SPIN';
+    }
+
+    document.getElementById('btn-spin').addEventListener('click', spin);
+    document.getElementById('slot-canvas').addEventListener('click', spin);
+
+    const betInput = document.getElementById('bet-input');
+    betInput.addEventListener('change', (e) => {
+      state.bet = Math.max(0.01, parseFloat(e.target.value) || 1.00);
+      betInput.value = state.bet.toFixed(2);
+      document.getElementById('bet-rubles').innerText = `$${state.bet.toFixed(2)} USD`;
+      updateUI();
+    });
+
+    document.getElementById('btn-bet-half').addEventListener('click', () => {
+      state.bet = Math.max(0.01, state.bet / 2);
+      betInput.value = state.bet.toFixed(2);
+      document.getElementById('bet-rubles').innerText = `$${state.bet.toFixed(2)} USD`;
+      updateUI();
+    });
+
+    document.getElementById('btn-bet-double').addEventListener('click', () => {
+      state.bet = Math.min(500.00, state.bet * 2);
+      betInput.value = state.bet.toFixed(2);
+      document.getElementById('bet-rubles').innerText = `$${state.bet.toFixed(2)} USD`;
+      updateUI();
+    });
+
+    document.getElementById('btn-bet-max').addEventListener('click', () => {
+      state.bet = 100.00;
+      betInput.value = state.bet.toFixed(2);
+      document.getElementById('bet-rubles').innerText = `$${state.bet.toFixed(2)} USD`;
+      updateUI();
+    });
+
+    document.getElementById('turbo-toggle').addEventListener('change', (e) => {
+      state.isTurbo = e.target.checked;
+    });
+
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      soundFX.muted = !soundFX.muted;
+      document.getElementById('sound-icon').className = soundFX.muted ? 'fa-solid fa-volume-xmark text-stone-500' : 'fa-solid fa-volume-high text-stake-text';
+    });
+  </script>
+  <script>
+    // ===================== MINES (honest 98% RTP, provably fair) =====================
+    (() => {
+      const TILES = 25, EDGE = 0.04;
+      const minesScreen = document.getElementById('mines-screen');
+      const $ = id => document.getElementById(id);
+      const M = {
+        active: false, bet: 1, mines: 3, picks: 0, minePos: [], revealed: new Set(),
+        serverSeed: '', serverHash: '', nonce: 0, profit: 0, locked: false
+      };
+
+      // ---- math ----
+      function survive(m, k) { let p = 1; for (let i = 0; i < k; i++) p *= (TILES - m - i) / (TILES - i); return p; }
+      function mult(m, k) { return k === 0 ? 1 : (1 / survive(m, k)) * (1 - EDGE); }
+      const fmt = n => '$' + n.toFixed(2);
+      const fmtMult = x => (x >= 100 ? x.toFixed(0) : x.toFixed(2)) + '×';
+
+      // ---- provably fair ----
+      const enc = new TextEncoder();
+      const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const sha256 = async s => hex(await crypto.subtle.digest('SHA-256', enc.encode(s)));
+      async function hmac(key, msg) {
+        const k = await crypto.subtle.importKey('raw', enc.encode(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+        return new Uint8Array(await crypto.subtle.sign('HMAC', k, enc.encode(msg)));
+      }
+      async function minePositions(serverSeed, clientSeed, nonce, count) {
+        const bytes = [];
+        for (let r = 0; bytes.length < 96; r++) bytes.push(...await hmac(serverSeed, `${clientSeed}:${nonce}:${r}`));
+        const f = [];
+        for (let i = 0; i < 24; i++) {
+          const o = i * 4;
+          f.push((((bytes[o] << 24) >>> 0) + (bytes[o + 1] << 16) + (bytes[o + 2] << 8) + bytes[o + 3]) / 4294967296);
+        }
+        const t = [...Array(TILES).keys()];
+        for (let i = TILES - 1; i > 0; i--) {
+          const j = Math.floor(f[TILES - 1 - i] * (i + 1));
+          [t[i], t[j]] = [t[j], t[i]];
+        }
+        return t.slice(0, count);
+      }
+      const randHex = () => hex(crypto.getRandomValues(new Uint8Array(32)));
+
+      async function newServerSeed() {
+        M.serverSeed = randHex();
+        M.serverHash = await sha256(M.serverSeed);
+        $('mines-server-hash').textContent = M.serverHash;
+      }
+
+      // ---- UI ----
+      const grid = $('mines-grid');
+      const countSel = $('mines-count');
+      for (let i = 1; i <= 24; i++) countSel.insertAdjacentHTML('beforeend', `<option value="${i}" ${i === 3 ? 'selected' : ''}>${i}</option>`);
+      $('mines-client-seed').value = randHex().slice(0, 16);
+
+      function buildGrid() {
+        grid.innerHTML = '';
+        for (let i = 0; i < TILES; i++) {
+          const b = document.createElement('button');
+          b.dataset.i = i;
+          b.className = 'aspect-square rounded-xl bg-stake-card hover:bg-[#2f4553] border border-stone-700/60 text-2xl md:text-3xl flex items-center justify-center transition disabled:cursor-not-allowed';
+          b.disabled = true;
+          b.addEventListener('click', () => pick(i));
+          grid.appendChild(b);
+        }
+      }
+
+      function refresh() {
+        const m = M.mines, k = M.picks;
+        $('mines-gems-left').textContent = TILES - m - k;
+        $('mines-mult').textContent = fmtMult(mult(m, k));
+        $('mines-next-mult').textContent = (M.active && k < TILES - m) ? fmtMult(mult(m, k + 1)) : '—';
+        $('mines-theory-rtp').textContent = (mult(m, 3) * survive(m, 3) * 100).toFixed(2) + '%';
+        $('mines-profit').textContent = fmt(M.profit);
+        $('balance-display').innerText = `$${state.balance.toFixed(2)}`;
+        $('mines-bet-btn').classList.toggle('hidden', M.active);
+        $('mines-cash-btn').classList.toggle('hidden', !M.active);
+        $('mines-cash-btn').disabled = k === 0;
+        $('mines-cash-amt').textContent = k > 0 ? fmt(M.bet * mult(m, k)) : '';
+        [$('mines-bet'), $('mines-bet-half'), $('mines-bet-double'), countSel, $('mines-client-seed')].forEach(e => e.disabled = M.active);
+        grid.querySelectorAll('button').forEach(b => { if (!M.revealed.has(+b.dataset.i)) b.disabled = !M.active; });
+      }
+
+      function reveal(i, isMine, faded) {
+        const b = grid.children[i];
+        b.disabled = true;
+        b.textContent = isMine ? '💣' : '💎';
+        b.className = 'aspect-square rounded-xl text-2xl md:text-3xl flex items-center justify-center border ' +
+          (isMine ? 'bg-red-950/70 border-red-700/60' : 'bg-emerald-950/70 border-emerald-600/60') + (faded ? ' opacity-50' : '');
+      }
+
+      async function startRound() {
+        if (M.locked || M.active) return;
+        const bet = Math.max(0.01, parseFloat($('mines-bet').value) || 1);
+        if (bet > state.balance) { alert('Insufficient funds!'); return; }
+        M.locked = true;
+        M.bet = bet; $('mines-bet').value = bet.toFixed(2);
+        M.mines = +countSel.value; M.picks = 0; M.revealed = new Set();
+        const cs = $('mines-client-seed').value || '0';
+        M.minePos = await minePositions(M.serverSeed, cs, M.nonce, M.mines);
+        state.balance -= bet; state.sessionProfit -= bet; M.profit -= bet; window.Stats && Stats.bet('mines', bet);
+        M.active = true; M.locked = false;
+        buildGrid();
+        $('mines-status').textContent = 'Pick a tile';
+        refresh();
+      }
+
+      async function endRound(won) {
+        M.active = false;
+        // reveal everything
+        M.minePos.forEach(i => { if (!M.revealed.has(i)) reveal(i, true, !won ? false : true); });
+        for (let i = 0; i < TILES; i++) if (!M.minePos.includes(i) && !M.revealed.has(i)) reveal(i, false, true);
+        // show revealed seed + verification
+        const cs = $('mines-client-seed').value || '0';
+        const ok = (await sha256(M.serverSeed)) === M.serverHash;
+        $('mines-prev-box').classList.remove('hidden');
+        $('mines-prev-seed').textContent = M.serverSeed;
+        $('mines-prev-check').textContent = ok ? '✓ SHA-256 matches the hash shown before the round' : '✗ hash mismatch';
+        $('mines-prev-check').className = 'font-bold ' + (ok ? 'text-stake-accent' : 'text-red-400');
+        $('v-server').value = M.serverSeed; $('v-client').value = cs; $('v-nonce').value = M.nonce; $('v-mines').value = M.mines;
+        M.nonce++; $('mines-nonce').textContent = M.nonce;
+        await newServerSeed();
+        refresh();
+      }
+
+      function pick(i) {
+        if (!M.active || M.revealed.has(i)) return;
+        M.revealed.add(i);
+        if (M.minePos.includes(i)) {
+          reveal(i, true, false);
+          grid.children[i].classList.add('shake');
+          $('mines-status').textContent = 'Boom! You hit a mine';
+          $('mines-last-win').textContent = fmt(0);
+          endRound(false);
+          return;
+        }
+        M.picks++;
+        reveal(i, false, false);
+        try { soundFX.playPop(); } catch (e) {}
+        $('mines-status').textContent = `${M.picks} gem${M.picks > 1 ? 's' : ''} found`;
+        refresh();
+        if (M.picks === TILES - M.mines) cashOut();
+      }
+
+      function cashOut() {
+        if (!M.active || M.picks === 0) return;
+        const win = M.bet * mult(M.mines, M.picks);
+        state.balance += win; state.sessionProfit += win; M.profit += win; window.Stats && Stats.pay('mines', win, M.bet);
+        $('mines-last-win').textContent = fmt(win);
+        $('mines-status').textContent = `Cashed out ${fmt(win)} at ${fmtMult(mult(M.mines, M.picks))}`;
+        endRound(true);
+      }
+
+      // ---- wiring ----
+      $('mines-bet-btn').addEventListener('click', startRound);
+      $('mines-cash-btn').addEventListener('click', cashOut);
+      countSel.addEventListener('change', () => { M.mines = +countSel.value; refresh(); });
+      $('mines-bet-half').addEventListener('click', () => { $('mines-bet').value = Math.max(0.01, (parseFloat($('mines-bet').value) || 1) / 2).toFixed(2); });
+      $('mines-bet-double').addEventListener('click', () => { $('mines-bet').value = Math.min(500, (parseFloat($('mines-bet').value) || 1) * 2).toFixed(2); });
+
+      $('mines-sim-btn').addEventListener('click', () => {
+        const N = 200000, m = M.mines, k = 3, pay = mult(m, k);
+        let wagered = 0, returned = 0;
+        for (let r = 0; r < N; r++) {
+          const mines = new Set(); while (mines.size < m) mines.add(Math.floor(Math.random() * TILES));
+          const order = [...Array(TILES).keys()].sort(() => Math.random() - 0.5);
+          let ok = true; for (let i = 0; i < k; i++) if (mines.has(order[i])) { ok = false; break; }
+          wagered += 1; if (ok) returned += pay;
+        }
+        $('mines-sim-out').textContent = `${m} mines: measured RTP ${(returned / wagered * 100).toFixed(2)}%`;
+      });
+
+      $('v-btn').addEventListener('click', async () => {
+        const s = $('v-server').value.trim(), c = $('v-client').value, n = $('v-nonce').value, m = +$('v-mines').value;
+        if (!s || n === '' || !(m >= 1 && m <= 24)) { $('v-out').textContent = 'Fill in all fields.'; return; }
+        const pos = (await minePositions(s, c, +n, m)).sort((a, b) => a - b).map(x => x + 1);
+        $('v-out').textContent = `Seed hash: ${await sha256(s)} • Mines at tiles: ${pos.join(', ')}`;
+      });
+
+      // ---- routing ----
+      function openMines() {
+        $('home-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.add('hidden');
+        minesScreen.classList.remove('hidden');
+        if (!grid.children.length) buildGrid();
+        refresh();
+      }
+      $('mines-card-btn').addEventListener('click', openMines);
+      $('brand-logo').addEventListener('click', () => {
+        minesScreen.classList.add('hidden');
+        $('home-screen').classList.remove('hidden');
+      });
+
+      if (!window.crypto || !crypto.subtle) {
+        $('mines-server-hash').textContent = 'Needs https:// or localhost for crypto.subtle';
+        $('mines-bet-btn').disabled = true;
+      } else {
+        newServerSeed();
+      }
+      buildGrid(); refresh();
+    })();
+  </script>
+  <script>
+    // ===================== DICE & COIN FLIP (honest 96% RTP, provably fair) =====================
+    (() => {
+      const $ = id => document.getElementById(id), EDGE = 0.04, enc = new TextEncoder();
+      const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+      const sha = async t => hex(await crypto.subtle.digest('SHA-256', enc.encode(t)));
+      const rh = n => hex(crypto.getRandomValues(new Uint8Array(n)));
+      const F = { rb: 'red', rn: 7, picks: [], server: '', hash: '', nonce: 0, game: 'dice', mode: 'under', target: 50, pick: 'heads', profit: 0, busy: false };
+      async function rollBytes(i = 0) {
+        const k = await crypto.subtle.importKey('raw', enc.encode(F.server), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+        return new Uint8Array(await crypto.subtle.sign('HMAC', k, enc.encode(`${$('f-client').value || '0'}:${F.nonce}:${i}`)));
+      }
+      const toF = b => (((b[0] << 24) >>> 0) + (b[1] << 16) + (b[2] << 8) + b[3]) / 4294967296;
+      const RTP = { dice: 0.96, flip: 0.96, limbo: 0.7999, plinko: 0.7999, crash: 0.75, wheel: 0.75, keno: 0.75, towers: 0.75, special: 0.75, rps: 0.75, roulette: 0.75, hilo: 0.75, diamonds: 0.75 };
+      // ---- Roulette (European, 37 pockets) — payout = 0.75 x 37 / numbers covered => RTP 75% on every bet type ----
+      const rCount = () => ({ red: 18, black: 18, even: 18, odd: 18, low: 18, high: 18, d1: 12, d2: 12, d3: 12, n: 1 })[F.rb] || 18;
+      const RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+      const fAt = (b, o) => (((b[o] << 24) >>> 0) + (b[o + 1] << 16) + (b[o + 2] << 8) + b[o + 3]) / 4294967296;
+      // ---- Diamonds: 5 gems, 7 colours. Probabilities enumerated exactly; paytable scaled so RTP is exactly 75% ----
+      const DG = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚪'];
+      const DCAT = { '5': ['Five of a kind', 50], '41': ['Four of a kind', 10], '32': ['Full house', 6], '311': ['Three of a kind', 3], '221': ['Two pair', 2], '2111': ['One pair', 0], '11111': ['No match', 0] };
+      const dSig = a => { const c = {}; a.forEach(x => c[x] = (c[x] || 0) + 1); return Object.values(c).sort((x, y) => y - x).join(''); };
+      const DP = {};
+      for (let n = 0; n < 16807; n++) { let m = n; const a = []; for (let i = 0; i < 5; i++) { a.push(m % 7); m = Math.floor(m / 7); } const sg = dSig(a); DP[sg] = (DP[sg] || 0) + 1 / 16807; }
+      const DSC = 0.75 / Object.keys(DCAT).reduce((a, k) => a + DP[k] * DCAT[k][1], 0), DM = k => DCAT[k][1] * DSC;
+      const dBoard = a => '<div class="flex gap-2 justify-center text-4xl p-3 bg-stone-950/60 rounded-xl max-w-sm mx-auto border border-teal-500/30">' + a.map(x => `<span>${DG[x]}</span>`).join('') + '</div>';
+      // ---- Hi-Lo: guess higher/lower. cashout multiplier = 0.75 x product(1/p) => RTP 75% at any cash-out point ----
+      const rl = r => ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'][r - 1] + '♠';
+      function hiloCards(b1, b2) { const b = [...b1, ...b2], c = []; for (let i = 0; i < 16; i++) c.push(Math.floor(fAt(b, i * 4) * 13) + 1); return c; }
+      function runHilo(cards, amt) {
+        return new Promise(res => {
+          const H = { i: 0, raw: 1, over: false, last: null }; F.towRun = true;
+          const pH = r => (13 - r) / 13, pL = r => (r - 1) / 13, mAt = raw => 0.75 * raw;
+          const btn = (k, ok, label, m) => `<div ${ok ? `data-hl="${k}"` : ''} class="py-2 rounded-lg text-center text-xs font-bold ${ok ? 'bg-emerald-700 text-white cursor-pointer hover:bg-emerald-600' : 'bg-stake-card text-stone-600'}">${label}<br><span class="font-mono">${ok ? m.toFixed(2) + '×' : '—'}</span></div>`;
+          const draw = () => {
+            const r = cards[H.i], hi = pH(r), lo = pL(r);
+            $('f-board').innerHTML = `<div class="flex gap-1.5 justify-center flex-wrap mb-3 min-h-[1.5rem]">${cards.slice(0, H.i).slice(-6).map(c => `<span class="px-2 py-1 rounded bg-stake-card text-xs text-stone-300">${rl(c)}</span>`).join('')}</div>
+              <div class="mx-auto w-24 h-32 rounded-xl bg-white text-stone-900 flex items-center justify-center text-4xl font-black shadow-lg">${rl(r)}</div>
+              <div class="grid grid-cols-2 gap-2 max-w-xs mx-auto mt-3">${btn('h', !H.over && hi > 0, '⬆ Higher', mAt(H.raw / (hi || 1)))}${btn('l', !H.over && lo > 0, '⬇ Lower', mAt(H.raw / (lo || 1)))}</div>`;
+            $('f-board').querySelectorAll('[data-hl]').forEach(c => c.onclick = () => guess(c.dataset.hl));
+            $('f-big').textContent = (H.i ? mAt(H.raw) : 1).toFixed(2) + '×'; $('f-big').style.color = '#fbbf24';
+            $('f-msg').textContent = H.i ? `Cash out now: $${(amt * mAt(H.raw)).toFixed(2)}` : 'Higher or lower? (ties lose)';
+            $('f-go').textContent = H.i ? 'Cash Out' : 'Guess a card';
+          };
+          const finish = cash => { F.towRun = false; F.towCash = null; H.over = true; draw(); $('f-go').textContent = 'Bet'; res(cash); };
+          const guess = k => {
+            if (H.over) return; const r = cards[H.i], n = cards[H.i + 1], p = k === 'h' ? pH(r) : pL(r);
+            if (!(p > 0)) return; const ok = k === 'h' ? n > r : n < r;
+            if (!ok) { H.i++; H.over = true; return finish(0); }
+            H.raw /= p; H.i++; if (H.i >= 15) finish(mAt(H.raw)); else draw();
+          };
+          F.towCash = () => { if (H.i > 0 && !H.over) finish(mAt(H.raw)); };
+          draw();
+        });
+      }
+      // ---- Blackjack: infinite deck, dealer stands on all 17 and peeks for blackjack, hit / stand / double (no split).
+      // Win returns 1.476x the stake, blackjack 1.976x, push returns the stake. With the best move every hand (exact calculation) RTP = 75.0%. ----
+      function bjMake(W) {
+        const B = W + 0.5, PV = [0]; for (let v = 1; v <= 10; v++) PV[v] = v === 10 ? 4 / 13 : 1 / 13;
+        const best = (h, a) => (a && h + 10 <= 21) ? h + 10 : h, dmemo = new Map(), dcache = {}, memo = new Map(), rmemo = new Map();
+        function dd(h, a) {
+          const k = h * 2 + (a ? 1 : 0); if (dmemo.has(k)) return dmemo.get(k); let out; const t = best(h, a);
+          if (h > 21) out = [0, 0, 0, 0, 0, 1]; else if (t >= 17) { out = [0, 0, 0, 0, 0, 0]; out[t - 17] = 1; }
+          else { out = [0, 0, 0, 0, 0, 0]; for (let v = 1; v <= 10; v++) { const s = dd(h + v, a || v === 1); for (let i = 0; i < 6; i++) out[i] += PV[v] * s[i]; } }
+          dmemo.set(k, out); return out;
+        }
+        function D(u) {
+          if (dcache[u]) return dcache[u]; const out = [0, 0, 0, 0, 0, 0];
+          for (let v = 1; v <= 10; v++) {
+            let p = PV[v]; if (u === 1) { if (v === 10) continue; p = PV[v] / (1 - PV[10]); } else if (u === 10) { if (v === 1) continue; p = PV[v] / (1 - PV[1]); }
+            const s = dd(u + v, u === 1 || v === 1); for (let i = 0; i < 6; i++) out[i] += p * s[i];
+          } return (dcache[u] = out);
+        }
+        const standRet = (t, u) => { const d = D(u); let pw = d[5], pp = 0; for (let f = 17; f <= 21; f++) { if (f < t) pw += d[f - 17]; else if (f === t) pp = d[f - 17]; } return W * pw + pp; };
+        function V(h, a, n, u) {
+          const k = [h, a ? 1 : 0, n >= 3 ? 3 : 2, u].join(); if (memo.has(k)) return memo.get(k);
+          const st = standRet(best(h, a), u) - 1; let hit = 0;
+          for (let v = 1; v <= 10; v++) hit += PV[v] * (h + v > 21 ? -1 : V(h + v, a || v === 1, 3, u).net);
+          let dbl = -Infinity; if (n === 2) { dbl = 0; for (let v = 1; v <= 10; v++) dbl += PV[v] * (h + v > 21 ? -2 : 2 * (standRet(best(h + v, a || v === 1), u) - 1)); }
+          let act = 'stand', net = st; if (hit > net + 1e-12) { act = 'hit'; net = hit; } if (dbl > net + 1e-12) { act = 'double'; net = dbl; }
+          const r = { act, net }; memo.set(k, r); return r;
+        }
+        function R(h, a, n, u) {
+          const k = [h, a ? 1 : 0, n >= 3 ? 3 : 2, u].join(); if (rmemo.has(k)) return rmemo.get(k); const act = V(h, a, n, u).act; let r;
+          if (act === 'stand') r = [standRet(best(h, a), u), 1];
+          else if (act === 'double') { r = [0, 2]; for (let v = 1; v <= 10; v++) r[0] += PV[v] * (h + v > 21 ? 0 : 2 * standRet(best(h + v, a || v === 1), u)); }
+          else { r = [0, 0]; for (let v = 1; v <= 10; v++) { const s = h + v > 21 ? [0, 1] : R(h + v, a || v === 1, 3, u); r[0] += PV[v] * s[0]; r[1] += PV[v] * s[1]; } }
+          rmemo.set(k, r); return r;
+        }
+        function rtp() {
+          let ret = 0, wag = 0;
+          for (let u = 1; u <= 10; u++) for (let v1 = 1; v1 <= 10; v1++) for (let v2 = 1; v2 <= 10; v2++) {
+            const p = PV[u] * PV[v1] * PV[v2], pBJ = u === 1 ? PV[10] : u === 10 ? PV[1] : 0, nat = (v1 === 1 && v2 === 10) || (v1 === 10 && v2 === 1);
+            ret += p * pBJ * (nat ? 1 : 0); wag += p * pBJ; const q = p * (1 - pBJ);
+            if (nat) { ret += q * B; wag += q; } else { const s = R(v1 + v2, v1 === 1 || v2 === 1, 2, u); ret += q * s[0]; wag += q * s[1]; }
+          } return ret / wag;
+        }
+        return { W, B, V, rtp, best };
+      }
+      const BJ = bjMake(1.476); RTP.blackjack = BJ.rtp();
+      const cv = r => Math.min(r, 10), hv = rs => { const h = rs.reduce((a, r) => a + cv(r), 0), a = rs.includes(1); return { h, a, b: BJ.best(h, a), soft: a && h + 10 <= 21 }; };
+      const bjCard = (r, hidden) => `<span class="inline-flex w-10 h-14 rounded-lg items-center justify-center font-black text-sm shadow ${hidden ? 'bg-indigo-900 text-indigo-300' : 'bg-white text-stone-900'}">${hidden ? '?' : rl(r)}</span>`;
+      const bjIdle = () => '<div class="text-center text-xs text-stone-500 py-6">Place a bet to deal</div>';
+      function bjBoard(P, Dl, reveal, buttons, hint) {
+        const ph = hv(P), dh = hv(Dl), dTxt = reveal ? (dh.b > 21 ? dh.h + ' (bust)' : dh.b) : '?';
+        const btn = (k, label, on) => `<div ${on ? `data-bj="${k}"` : ''} class="py-2 rounded-lg text-center text-xs font-bold ${on ? 'bg-emerald-700 hover:bg-emerald-600 text-white cursor-pointer' : 'bg-stake-card text-stone-600'}">${label}</div>`;
+        return `<div class="space-y-3 max-w-xs mx-auto"><div><div class="text-[10px] uppercase font-bold text-stake-muted mb-1">Dealer <span class="text-white font-mono">${dTxt}</span></div><div class="flex gap-1.5">${Dl.map((r, i) => bjCard(r, !reveal && i === 1)).join('')}</div></div>
+          <div><div class="text-[10px] uppercase font-bold text-stake-muted mb-1">You <span class="text-white font-mono">${ph.b > 21 ? ph.h + ' (bust)' : ph.b}${ph.soft ? ' soft' : ''}</span></div><div class="flex gap-1.5 flex-wrap">${P.map(r => bjCard(r)).join('')}</div></div>
+          ${buttons ? `<div class="grid grid-cols-4 gap-1.5">${btn('hit', 'Hit', true)}${btn('stand', 'Stand', true)}${btn('double', 'Double', buttons.dbl)}${btn('hint', '💡 Hint', true)}</div>` : ''}${hint ? `<div class="text-[11px] text-amber-300 font-bold text-center">${hint}</div>` : ''}</div>`;
+      }
+      function bjCards(b0, b1, b2) { const b = [...b0, ...b1, ...b2], c = []; for (let i = 0; i < 24; i++) c.push(Math.floor(fAt(b, i * 4) * 13) + 1); return c; }
+      function runBlackjack(cards, amt) {
+        return new Promise(res => {
+          let ci = 0; const draw = () => cards[ci++];
+          const P = [draw()], Dl = [draw()]; P.push(draw()); Dl.push(draw()); let dbl = false; F.towRun = true;
+          const finish = (mult, text) => { F.towRun = false; F.towCash = null; $('f-board').innerHTML = bjBoard(P, Dl, true, null); $('f-go').textContent = 'Bet'; $('f-big').textContent = text; res({ mult, text }); };
+          const settle = () => {
+            const ph = hv(P).b, f = dbl ? 2 : 1; while (hv(Dl).b < 17) Dl.push(draw()); const dh = hv(Dl).b;
+            if (dh > 21 || ph > dh) finish(BJ.W * f, 'You win'); else if (ph === dh) finish(1 * f, 'Push'); else finish(0, 'Dealer wins');
+          };
+          const pn = hv(P).b === 21, dn = hv(Dl).b === 21;
+          if (dn) return finish(pn ? 1 : 0, pn ? 'Push (both blackjack)' : 'Dealer blackjack');
+          if (pn) return finish(BJ.B, 'Blackjack!');
+          const draw0 = hint => {
+            $('f-board').innerHTML = bjBoard(P, Dl, false, { dbl: P.length === 2 && !dbl && state.balance >= amt }, hint);
+            $('f-board').querySelectorAll('[data-bj]').forEach(c => c.onclick = () => act(c.dataset.bj));
+            $('f-big').textContent = 'Your move'; $('f-big').style.color = '#fbbf24'; $('f-msg').textContent = 'Hit, stand or double'; $('f-go').textContent = 'Stand';
+          };
+          const act = k => {
+            if (!F.towRun) return; const h = hv(P);
+            if (k === 'hint') { const can = P.length === 2 && state.balance >= amt, r = BJ.V(h.h, h.a, can ? 2 : 3, cv(Dl[0])); return draw0('Best move: ' + { hit: 'Hit', stand: 'Stand', double: 'Double' }[r.act]); }
+            if (k === 'hit') { P.push(draw()); const x = hv(P); if (x.b > 21) return finish(0, 'Bust'); if (x.b === 21) return settle(); return draw0(); }
+            if (k === 'stand') return settle();
+            if (k === 'double' && P.length === 2 && state.balance >= amt) {
+              state.balance -= amt; state.sessionProfit -= amt; F.profit -= amt; window.Stats && Stats.bet(F.game, amt); F.extraWager = amt; F.pending += amt; updateUI(); dbl = true;
+              P.push(draw()); if (hv(P).b > 21) return finish(0, 'Bust'); return settle();
+            }
+          };
+          F.towCash = () => act('stand'); draw0();
+        });
+      }
+      // ---- Towers: 8 rows, 3 tiles, 1 bomb per row. mult(k) = 0.75 / (2/3)^k  => RTP exactly 75% at any cash-out row ----
+      const TW_ROWS = 8, twMult = k => 0.75 * Math.pow(1.5, k);
+      function towersBoard(T, bombs) {
+        let h = '<div class="space-y-1.5 max-w-xs mx-auto">';
+        for (let r = TW_ROWS - 1; r >= 0; r--) {
+          h += `<div class="flex items-center gap-2"><span class="w-12 text-[10px] font-mono text-stake-muted text-right">${twMult(r + 1).toFixed(2)}×</span><div class="grid grid-cols-3 gap-1.5 flex-1">`;
+          for (let c = 0; c < 3; c++) {
+            const act = !T.idle && !T.over && r === T.row, picked = T.pick[r] === c, bomb = T.over && bombs[r] === c;
+            let cls = 'bg-stake-card text-stake-muted', txt = '';
+            if (bomb) { cls = picked ? 'bg-red-700 text-white' : 'bg-red-950/60 text-red-300'; txt = '💣'; }
+            else if (picked) { cls = 'bg-emerald-700 text-white'; txt = '💎'; }
+            else if (act) { cls = 'bg-stone-600 hover:bg-stone-500 text-white cursor-pointer ring-1 ring-stake-accent/60'; }
+            h += `<div ${act ? `data-r="${r}" data-c="${c}"` : ''} class="py-2 rounded-lg text-center text-lg ${cls}">${txt || '&nbsp;'}</div>`;
+          }
+          h += '</div></div>';
+        }
+        return h + '</div>';
+      }
+      function runTowers(bombs, amt) {
+        return new Promise(res => {
+          const T = { row: 0, pick: [], over: false }; F.towRun = true;
+          const draw = () => {
+            $('f-board').innerHTML = towersBoard(T, bombs);
+            $('f-board').querySelectorAll('[data-r]').forEach(c => c.onclick = () => click(+c.dataset.c));
+            $('f-big').textContent = twMult(T.row).toFixed(2) + '×'; $('f-big').style.color = '#fbbf24';
+            $('f-msg').textContent = T.row ? `Cash out now: $${(amt * twMult(T.row)).toFixed(2)}` : 'Pick a tile on the bottom row';
+            $('f-go').textContent = T.row ? 'Cash Out' : 'Pick a tile';
+          };
+          const finish = cash => { F.towRun = false; F.towCash = null; T.over = true; $('f-board').innerHTML = towersBoard(T, bombs); $('f-go').textContent = 'Bet'; res(cash); };
+          const click = c => {
+            if (T.over) return; T.pick[T.row] = c;
+            if (bombs[T.row] === c) return finish(0);
+            T.row++; if (T.row === TW_ROWS) finish(twMult(T.row)); else draw();
+          };
+          F.towCash = () => { if (T.row > 0 && !T.over) finish(twMult(T.row)); };
+          draw();
+        });
+      }
+      // ---- Stiku Special slot: 5 reels x 3 rows, 10 lines, wild 🌟, scatter 🎰 (3+ = free spins, wins x2). Paytable tuned by 12M-round simulation: RTP 75.02% ± 0.18% ----
+      const SPX = { SYM: ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣', '🌟', '🎰'], W: [22, 20, 17, 13, 9, 5, 4, 3],
+        LINES: [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2], [0, 0, 1, 2, 2], [2, 2, 1, 0, 0], [1, 0, 0, 0, 1], [1, 2, 2, 2, 1], [0, 1, 0, 1, 0]],
+        PAY: [[3.32, 9.96, 33.2], [3.32, 13.28, 39.84], [6.64, 19.92, 66.4], [9.96, 33.2, 132.8], [19.92, 66.4, 332], [33.2, 166, 1328]], SCAT: [6.64, 33.2, 166], FS: [8, 10, 12] };
+      function spPick(rand, reel) {
+        const w = SPX.W.map((x, i) => (i === 6 && (reel === 0 || reel === 4)) ? 0 : x); let r = rand() * w.reduce((a, b) => a + b, 0);
+        for (let i = 0; i < 8; i++) { r -= w[i]; if (r < 0) return i; } return 0;
+      }
+      const spGrid = rand => [0, 1, 2, 3, 4].map(c => [0, 1, 2].map(() => spPick(rand, c)));
+      function spEval(g) {
+        let mult = 0; const wins = [];
+        SPX.LINES.forEach(ln => {
+          const first = g[0][ln[0]]; if (first >= 6) return; let n = 1;
+          while (n < 5) { const x = g[n][ln[n]]; if (x === first || x === 6) n++; else break; }
+          if (n >= 3) { mult += SPX.PAY[first][n - 3] / 10; wins.push({ cells: ln.slice(0, n).map((r, c) => c + '-' + r) }); }
+        });
+        let sc = 0; const scCells = []; g.forEach((col, c) => col.forEach((x, r) => { if (x === 7) { sc++; scCells.push(c + '-' + r); } }));
+        return { mult, wins, sc, scCells };
+      }
+      function spRound(rand) {
+        const g = spGrid(rand), e = spEval(g), spins = [{ g, e, fs: 0 }]; let total = e.mult;
+        if (e.sc >= 3) {
+          const k = Math.min(5, e.sc) - 3, n = SPX.FS[k]; total += SPX.SCAT[k];
+          for (let i = 1; i <= n; i++) { const g2 = spGrid(rand), e2 = spEval(g2); e2.sc = 0; total += e2.mult * 2; spins.push({ g: g2, e: e2, fs: i, n }); }
+        }
+        return { total, spins };
+      }
+      function slotHtml(g, hi = []) {
+        let h = '<div class="grid grid-cols-5 gap-1.5 max-w-sm mx-auto bg-stone-950/60 p-2 rounded-xl border border-amber-500/30">';
+        for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) h += `<div id="sp-${c}-${r}" class="py-3 rounded-lg text-3xl text-center transition ${hi.includes(c + '-' + r) ? 'bg-amber-500/30 ring-2 ring-amber-400 scale-105' : 'bg-stake-card'}">${SPX.SYM[g[c][r]]}</div>`;
+        return h + '</div>';
+      }
+      const spIdle = () => [0, 1, 2, 3, 4].map(c => [0, 1, 2].map(r => (c * 2 + r) % 6));
+      function spinAnim(g, ms) {
+        return new Promise(res => {
+          const t0 = performance.now(); $('f-board').innerHTML = slotHtml(spGrid(Math.random));
+          const iv = setInterval(() => {
+            const t = performance.now() - t0; let done = true;
+            for (let c = 0; c < 5; c++) {
+              const settle = ms * 0.5 + c * ms * 0.12;
+              for (let r = 0; r < 3; r++) { const el = document.getElementById(`sp-${c}-${r}`); if (el) el.textContent = SPX.SYM[t >= settle ? g[c][r] : Math.floor(Math.random() * 8)]; }
+              if (t < settle) done = false;
+            }
+            if (done) { clearInterval(iv); res(); }
+          }, 55);
+        });
+      }
+      async function playSlot(res, amt) {
+        let run = 0;
+        for (const sp of res.spins) {
+          const fs = sp.fs;
+          $('f-msg').textContent = fs ? `Free spin ${fs}/${sp.n} • wins x2` : 'Spinning…'; $('f-big').style.color = '#fff';
+          await spinAnim(sp.g, fs ? 480 : 750);
+          const w = sp.e.mult * (fs ? 2 : 1); let extra = 0;
+          if (!fs && sp.e.sc >= 3) extra = SPX.SCAT[Math.min(5, sp.e.sc) - 3];
+          run += w + extra;
+          $('f-board').innerHTML = slotHtml(sp.g, [...sp.e.wins.flatMap(x => x.cells), ...(!fs && sp.e.sc >= 3 ? sp.e.scCells : [])]);
+          $('f-big').textContent = run.toFixed(2) + '×';
+          if (!fs && sp.e.sc >= 3) { $('f-msg').textContent = `🎰 ${SPX.FS[Math.min(5, sp.e.sc) - 3]} FREE SPINS!`; try { soundFX.playWin(); } catch (e) {} await sleep(1400); }
+          else { $('f-msg').textContent = (w + extra) > 0 ? `Win $${((w + extra) * amt).toFixed(2)}` : (fs ? 'No win' : ''); await sleep((w + extra) > 0 ? 650 : 250); }
+        }
+      }
+
+      // Lucky Wheel: 20 segments, mean multiplier = 15/20 = 0.75 exactly
+      const WHEEL = [0, 1, 0, 2, 0, 0.5, 0, 4, 0, 1, 0, 2, 0, 0.5, 0, 1, 0, 2, 0, 1];
+      // Keno: 40 numbers, 10 drawn, pick 1-5. Each paying hit-count gets payout ∝ P^-0.7, scaled so RTP is exactly 75%.
+      const nCk = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1); return r; };
+      const KT = {};
+      for (let n = 1; n <= 5; n++) {
+        const P = h => nCk(10, h) * nCk(30, n - h) / nCk(40, n), t = Math.max(1, Math.ceil(n / 2)), raw = [];
+        for (let h = 0; h <= n; h++) raw.push(h >= t ? Math.pow(1 / P(h), 0.7) : 0);
+        const sc = 0.75 / raw.reduce((a, r, h) => a + P(h) * r, 0); KT[n] = raw.map(r => r * sc);
+      }
+      const sleep = ms => new Promise(r => setTimeout(r, ms));
+      const wcol = m => m === 0 ? '#450a0a' : m < 1 ? '#7c2d12' : m === 1 ? '#1e3a5f' : '#064e3b';
+      function wheelStrip(hi = -1) {
+        return '<div class="grid grid-cols-10 gap-1 max-w-sm mx-auto">' + WHEEL.map((m, i) => `<div class="rounded py-2 text-[10px] font-bold text-white text-center" style="background:${wcol(m)};outline:${i === hi ? '2px solid #fbbf24' : 'none'};transform:${i === hi ? 'scale(1.12)' : 'none'}">${m}×</div>`).join('') + '</div>';
+      }
+      async function spinWheel(idx) { const steps = 20 + idx; for (let i = 0; i <= steps; i++) { $('f-board').innerHTML = wheelStrip(i % 20); await sleep(18 + i * 2); } }
+      function kenoDraw(b1, b2) {
+        const b = [...b1, ...b2], t = [...Array(40).keys()];
+        for (let i = 0; i < 10; i++) { const o = i * 4, f = (((b[o] << 24) >>> 0) + (b[o + 1] << 16) + (b[o + 2] << 8) + b[o + 3]) / 4294967296, j = i + Math.floor(f * (40 - i)); [t[i], t[j]] = [t[j], t[i]]; }
+        return t.slice(0, 10).map(x => x + 1);
+      }
+      function renderKeno(drawn = []) {
+        let h = '<div class="grid grid-cols-8 gap-1.5 max-w-sm mx-auto">';
+        for (let n = 1; n <= 40; n++) { const pk = F.picks.includes(n), dr = drawn.includes(n);
+          h += `<div data-k="${n}" class="py-2 rounded-lg text-xs font-bold text-center cursor-pointer ${dr && pk ? 'bg-emerald-600 text-white' : dr ? 'bg-amber-600 text-white' : pk ? 'bg-stake-card text-white ring-2 ring-stake-accent' : 'bg-stake-card text-stake-text hover:bg-stone-700'}">${n}</div>`; }
+        $('f-board').innerHTML = h + '</div>';
+        $('f-board').querySelectorAll('[data-k]').forEach(c => c.onclick = () => {
+          if (F.busy) return; const n = +c.dataset.k, i = F.picks.indexOf(n);
+          if (i >= 0) F.picks.splice(i, 1); else if (F.picks.length < 5) F.picks.push(n); else return;
+          renderKeno(); kenoTable(); paint();
+        });
+      }
+      function kenoTable() {
+        const n = F.picks.length, el = $('f-kt'); if (!el) return;
+        el.innerHTML = n ? KT[n].map((m, h) => m > 0 ? `<div class="flex justify-between"><span>${h} hits</span><b class="text-white">${m >= 100 ? m.toFixed(0) : m.toFixed(2)}×</b></div>` : '').join('') : '<span class="text-stone-500">Pick 1-5 numbers</span>';
+      }
+      function runCrash(x, auto) {
+        return new Promise(res => {
+          const t0 = performance.now(); F.crashRun = true; F.crashCash = false; $('f-go').textContent = 'Cash Out'; $('f-msg').textContent = 'Climbing…'; $('f-big').style.color = '#fbbf24';
+          const end = (cash) => { clearInterval(iv); F.crashRun = false; $('f-go').textContent = 'Bet'; res(cash); };
+          const iv = setInterval(() => {
+            const m = Math.exp(0.2 * (performance.now() - t0) / 1000);
+            if (m >= x) return end(0);
+            if (auto && auto < x && m >= auto) return end(auto);
+            if (F.crashCash) return end(Math.max(1, Math.floor(m * 100) / 100));
+            $('f-big').textContent = m.toFixed(2) + '×';
+          }, 50);
+        });
+      }
+      const PB = [1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1], RAW = [26, 9, 4, 1.4, 0.7, 0.4, 0.7, 1.4, 4, 9, 26];
+      const PS = 0.7999 / RAW.reduce((a, r, i) => a + r * PB[i] / 1024, 0), PM = RAW.map(r => r * PS);
+      const bx = (j, s) => 165 + (j - s / 2) * 26;
+      function board(hi = -1) {
+        let h = '<svg viewBox="0 0 330 225" class="w-full max-w-xs mx-auto">';
+        for (let r = 0; r < 10; r++) for (let j = 0; j <= r; j++) h += `<circle cx="${bx(j, r)}" cy="${8 + r * 17.5}" r="2.2" fill="#557086"/>`;
+        PM.forEach((m, j) => { const x = bx(j, 10); h += `<rect x="${x - 12}" y="196" width="24" height="22" rx="4" fill="${m >= 1 ? '#064e3b' : '#450a0a'}" stroke="${j === hi ? '#fbbf24' : 'none'}" stroke-width="2"/><text x="${x}" y="211" font-size="7.5" text-anchor="middle" fill="#fff" font-weight="bold">${m >= 10 ? m.toFixed(0) : m.toFixed(2)}</text>`; });
+        return h + '<circle id="pb" cx="165" cy="0" r="5" fill="#fbbf24" opacity="0"/></svg>';
+      }
+      async function drop(b) {
+        let j = 0;
+        for (let s = 0; s <= 10; s++) {
+          if (s > 0 && b[s - 1] >= 128) j++;
+          const el = document.getElementById('pb'); if (!el) return;
+          el.setAttribute('cx', bx(j, s)); el.setAttribute('cy', 8 + s * 17.5); el.setAttribute('opacity', 1);
+          await new Promise(r => setTimeout(r, 110));
+        }
+      }
+      async function rotate() { F.server = rh(32); F.hash = await sha(F.server); $('f-hash').textContent = F.hash; $('f-nonce').textContent = F.nonce; }
+      F.lt = 2;
+      const chance = () => F.game === 'flip' ? 50 : F.game === 'rps' ? 100 / 3 : F.game === 'roulette' ? rCount() / 37 * 100 : F.game === 'limbo' ? 100 * RTP.limbo / F.lt : F.game === 'plinko' ? 0 : (F.mode === 'under' ? F.target : 100 - F.target);
+      const mult = () => F.game === 'limbo' ? F.lt : F.game === 'plinko' ? 0 : (100 * RTP[F.game]) / chance();
+      function opts() {
+        if (F.game === 'rps' && !['rock', 'paper', 'scissors'].includes(F.pick)) F.pick = 'rock';
+        if (F.game === 'flip' && !['heads', 'tails'].includes(F.pick)) F.pick = 'heads';
+        $('f-title').textContent = { dice: '🎲 Dice', flip: '🪙 Coin Flip', limbo: '🚀 Limbo', plinko: '🔮 Plinko', crash: '📈 Crash', wheel: '🎡 Lucky Wheel', keno: '🎱 Keno', towers: '🗼 Towers', special: '🎰 Stiku Special', rps: '✂️ Rock Paper Scissors', roulette: '⭕ Roulette', hilo: '🃏 Hi-Lo', diamonds: '💠 Diamonds', blackjack: '♠️ Blackjack' }[F.game];
+        const inp = 'w-full bg-stake-dark border border-stake-card rounded-lg px-3 py-2.5 text-white font-mono text-sm outline-none';
+        $('f-opts').innerHTML = F.game === 'dice' ? `
+          <div class="grid grid-cols-2 gap-2"><button data-m="under" class="py-2 rounded-lg font-bold text-xs">Roll Under</button><button data-m="over" class="py-2 rounded-lg font-bold text-xs">Roll Over</button></div>
+          <div><label class="text-[10px] font-bold uppercase text-stake-muted">Target: <span id="f-tv" class="text-white font-mono"></span></label>
+          <input id="f-t" type="range" min="2" max="98" step="1" value="${F.target}" class="w-full accent-green-500"></div>` : F.game === 'flip' ? `
+          <div class="grid grid-cols-2 gap-2"><button data-p="heads" class="py-2 rounded-lg font-bold text-xs">Heads</button><button data-p="tails" class="py-2 rounded-lg font-bold text-xs">Tails</button></div>` : F.game === 'limbo' ? `
+          <div><label class="text-[10px] font-bold uppercase text-stake-muted">Target multiplier (1.01 – 1000)</label><input id="f-lt" type="number" min="1.01" max="1000" step="0.01" value="${F.lt}" class="${inp}"></div>
+          <p class="text-[10px] text-stone-400">Win if the rolled multiplier reaches your target. Higher target = lower chance.</p>` : F.game === 'plinko' ? `
+          <p class="text-xs text-stone-400">10 rows. The ball drops into one of 11 buckets; the payout is the bucket's multiplier (shown on the board).</p>` : F.game === 'crash' ? `
+          <div><label class="text-[10px] font-bold uppercase text-stake-muted">Auto cash out at (optional)</label><input id="f-ac" type="number" min="1.01" step="0.01" value="2.00" class="${inp}"></div>
+          <p class="text-[10px] text-stone-400">The multiplier climbs until it crashes. Cash out before it does. About 25% of rounds crash at 1.00×.</p>` : F.game === 'blackjack' ? `
+          <p class="text-xs text-stone-300">Win pays <b class="text-white">${BJ.W}×</b> your bet, blackjack pays <b class="text-white">${BJ.B}×</b>, a push returns your bet.</p>
+          <p class="text-[10px] text-stone-400">Infinite deck. Dealer stands on all 17s and checks for blackjack first. Hit, stand, or double on your first two cards (no splitting). The RTP is <b>${(RTP.blackjack * 100).toFixed(2)}%</b> when you make the best move every hand — the 💡 Hint button shows it. Playing worse returns less.</p>` : F.game === 'roulette' ? `
+          <div class="grid grid-cols-3 gap-2">${[['red', '🔴 Red'], ['black', '⚫ Black'], ['even', 'Even'], ['odd', 'Odd'], ['low', '1-18'], ['high', '19-36'], ['d1', '1st 12'], ['d2', '2nd 12'], ['d3', '3rd 12'], ['n', 'Number']].map(([k, l]) => `<button data-rb="${k}" class="py-2 rounded-lg font-bold text-xs">${l}</button>`).join('')}</div>
+          <div><label class="text-[10px] font-bold uppercase text-stake-muted">Number (for the "Number" bet, 0-36)</label><input id="f-rn" type="number" min="0" max="36" value="${F.rn}" class="${inp}"></div>
+          <p class="text-[10px] text-stone-400">One-zero wheel (37 pockets). Payout = 0.75 × 37 ÷ numbers covered, so every bet type returns exactly 75% on average. Zero loses every outside bet.</p>` : F.game === 'hilo' ? `
+          <p class="text-xs text-stone-400">A card is shown. Guess whether the next card is higher or lower (ties lose). Each right guess multiplies your payout by 1 ÷ its chance, with the 0.75 factor applied once, so cashing out at any point returns 75% on average. You can cash out after your first correct guess; 15 correct guesses cashes out automatically.</p>` : F.game === 'diamonds' ? `
+          <div class="text-[11px] text-stone-300 space-y-0.5"><div class="text-[10px] font-bold uppercase text-stake-muted">Pays</div>${Object.keys(DCAT).filter(k => DCAT[k][1] > 0).map(k => `<div class="flex justify-between"><span>${DCAT[k][0]}</span><b class="text-white">${DM(k).toFixed(2)}×</b></div>`).join('')}</div>
+          <p class="text-[10px] text-stone-400">5 gems, 7 colours. Probabilities are counted exactly, and the payouts are scaled so the return is exactly 75%.</p>` : F.game === 'rps' ? `
+          <div class="grid grid-cols-3 gap-2"><button data-p="rock" class="py-2 rounded-lg font-bold text-xs">🪨 Rock</button><button data-p="paper" class="py-2 rounded-lg font-bold text-xs">📄 Paper</button><button data-p="scissors" class="py-2 rounded-lg font-bold text-xs">✂️ Scissors</button></div>
+          <p class="text-xs text-stone-400">Win pays 2.25×. A tie or a loss loses your bet. The house move is picked at random from the seed (1/3 each) and never changes based on how you have been doing, so the RTP stays fixed at 75%.</p>` : F.game === 'towers' ? `
+          <p class="text-xs text-stone-400">8 floors, 3 tiles each, one hides a bomb. Every safe floor multiplies your bet; cash out any time. Floor payouts are shown on the left of the tower. Over many rounds the game returns exactly 75%.</p>` : F.game === 'special' ? `
+          <div class="text-[11px] text-stone-300 space-y-0.5"><div class="text-[10px] font-bold uppercase text-stake-muted">Pays (× line bet, 10 lines)</div><div class="flex justify-between"><span>${SPX.SYM[0]} ×3 / ×4 / ×5</span><b class="text-white">${SPX.PAY[0].join(" / ")}</b></div><div class="flex justify-between"><span>${SPX.SYM[1]} ×3 / ×4 / ×5</span><b class="text-white">${SPX.PAY[1].join(" / ")}</b></div><div class="flex justify-between"><span>${SPX.SYM[2]} ×3 / ×4 / ×5</span><b class="text-white">${SPX.PAY[2].join(" / ")}</b></div><div class="flex justify-between"><span>${SPX.SYM[3]} ×3 / ×4 / ×5</span><b class="text-white">${SPX.PAY[3].join(" / ")}</b></div><div class="flex justify-between"><span>${SPX.SYM[4]} ×3 / ×4 / ×5</span><b class="text-white">${SPX.PAY[4].join(" / ")}</b></div><div class="flex justify-between"><span>${SPX.SYM[5]} ×3 / ×4 / ×5</span><b class="text-white">${SPX.PAY[5].join(" / ")}</b></div>
+          <div class="flex justify-between"><span>🌟 Wild (reels 2-4)</span><b class="text-white">substitutes</b></div>
+          <div class="flex justify-between"><span>🎰 ×3 / ×4 / ×5</span><b class="text-white">${SPX.SCAT.join(' / ')}× bet + ${SPX.FS.join('/')} free spins</b></div></div>
+          <p class="text-[10px] text-stone-400">Free spins pay double. RTP ≈75% (simulated: 75.02% ± 0.18% over 12,000,000 rounds).</p>` : F.game === 'wheel' ? `
+          <p class="text-xs text-stone-400">20 segments: 0× (10), 0.5× (2), 1× (4), 2× (3), 4× (1). Average payout is exactly 0.75× your bet.</p>` : `
+          <p class="text-xs text-stone-400">Pick 1-5 numbers on the board. 10 of 40 numbers are drawn. Payouts for your pick count:</p><div id="f-kt" class="text-xs text-stone-300 space-y-0.5"></div>`;
+        $('f-opts').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { F.mode = b.dataset.m; paint(); });
+        $('f-opts').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { F.pick = b.dataset.p; paint(); });
+        if ($('f-t')) $('f-t').oninput = e => { F.target = +e.target.value; paint(); };
+        kenoTable();
+        if ($('f-lt')) $('f-lt').oninput = e => { F.lt = Math.min(1000, Math.max(1.01, +e.target.value || 1.01)); paint(); };
+        $('f-opts').querySelectorAll('[data-rb]').forEach(b => b.onclick = () => { F.rb = b.dataset.rb; paint(); });
+        if ($('f-rn')) $('f-rn').oninput = e => { F.rn = Math.min(36, Math.max(0, Math.floor(+e.target.value || 0))); paint(); };
+        paint();
+      }
+      function paint() {
+        $('f-opts').querySelectorAll('button').forEach(b => {
+          const on = b.dataset.m === F.mode || b.dataset.p === F.pick || b.dataset.rb === F.rb;
+          b.className = 'py-2 rounded-lg font-bold text-xs ' + (on ? 'bg-stake-accent text-stake-dark' : 'bg-stake-card text-stake-text');
+        });
+        if ($('f-tv')) $('f-tv').textContent = (F.mode === 'under' ? '< ' : '≥ ') + F.target.toFixed(2);
+        const MT = { plinko: 'up to ' + Math.max(...PM).toFixed(2) + '×', wheel: 'up to 4.00×', crash: 'live', towers: 'live', special: '10 lines', rps: '2.25×', hilo: 'live', blackjack: 'win ' + BJ.W + '×', diamonds: 'up to ' + DM('5').toFixed(0) + '×', keno: F.picks.length ? 'up to ' + Math.max(...KT[F.picks.length]).toFixed(0) + '×' : '—' };
+        $('f-mult').textContent = MT[F.game] || mult().toFixed(2) + '×'; $('f-chance').textContent = ['plinko', 'wheel', 'crash', 'keno', 'towers', 'special', 'hilo', 'diamonds', 'blackjack'].includes(F.game) ? '—' : chance().toFixed(2) + '%';
+        const ap = ['special', 'blackjack'].includes(F.game) ? '≈' : ''; $('f-rtp').textContent = ap + (RTP[F.game] * 100).toFixed(2).replace(/\.00$/, '') + '%'; $('f-edge').textContent = ap + ((1 - RTP[F.game]) * 100).toFixed(2).replace(/\.?0+$/, '') + '%';
+        $('f-profit').textContent = '$' + F.profit.toFixed(2);
+        if (!F.crashRun && !F.towRun) $('f-go').textContent = F.game === 'special' ? 'Spin' : 'Bet';
+        $('balance-display').innerText = `$${state.balance.toFixed(2)}`;
+      }
+      async function bet() {
+        if (F.busy) return betInner();
+        try { await betInner(); }
+        catch (e) {
+          console.error(e); if (F.pending) { state.balance += F.pending; state.sessionProfit += F.pending; F.profit += F.pending; F.pending = 0; updateUI(); }
+          $('f-msg').textContent = 'Something went wrong — your bet was returned.';
+        } finally { F.busy = false; F.crashRun = false; F.towRun = false; F.towCash = null; paint(); }
+      }
+      async function betInner() {
+        if (F.busy) { if (F.crashRun) F.crashCash = true; if (F.towCash) F.towCash(); return; }
+        if (F.game === 'keno' && !F.picks.length) { $('f-msg').textContent = 'Pick 1-5 numbers first'; return; }
+        const amt = Math.max(0.01, parseFloat($('f-bet').value) || 1);
+        if (amt > state.balance) { alert('Insufficient funds!'); return; }
+        F.busy = true; $('f-bet').value = amt.toFixed(2);
+        state.balance -= amt; state.sessionProfit -= amt; F.profit -= amt; window.Stats && Stats.bet(F.game, amt); F.pending = amt;
+        const bytes = await rollBytes(), f = toF(bytes); let win, shown, pay = 0, slot = -1;
+        if (F.game === 'dice') { const r = Math.floor(f * 10000) / 100; shown = r.toFixed(2); win = F.mode === 'under' ? r < F.target : r >= F.target; pay = win ? amt * mult() : 0; }
+        else if (F.game === 'flip') { const res = f < 0.5 ? 'heads' : 'tails'; shown = res === 'heads' ? '🟡 H' : '⚪ T'; win = res === F.pick; pay = win ? amt * mult() : 0; }
+        else if (F.game === 'limbo') { const x = RTP.limbo / (1 - f); shown = Math.min(x, 1e6).toFixed(2) + '×'; win = x >= F.lt; pay = win ? amt * F.lt : 0; }
+        else if (F.game === 'blackjack') { const r = await runBlackjack(bjCards(bytes, await rollBytes(1), await rollBytes(2)), amt); pay = amt * r.mult; win = pay > amt; shown = r.text; }
+        else if (F.game === 'roulette') { const n = Math.floor(f * 37), t = F.rb; win = t === 'red' ? RED.includes(n) : t === 'black' ? n > 0 && !RED.includes(n) : t === 'even' ? n > 0 && n % 2 === 0 : t === 'odd' ? n % 2 === 1 : t === 'low' ? n >= 1 && n <= 18 : t === 'high' ? n >= 19 : t === 'd1' ? n >= 1 && n <= 12 : t === 'd2' ? n >= 13 && n <= 24 : t === 'd3' ? n >= 25 : n === F.rn; pay = win ? amt * mult() : 0; shown = (n === 0 ? '🟢' : RED.includes(n) ? '🔴' : '⚫') + ' ' + n; }
+        else if (F.game === 'diamonds') { const a = []; for (let i = 0; i < 5; i++) a.push(Math.floor(fAt(bytes, i * 4) * 7)); const sg = dSig(a); pay = amt * DM(sg); win = pay > amt; shown = DCAT[sg][0]; $('f-board').innerHTML = dBoard(a); }
+        else if (F.game === 'hilo') { const m = await runHilo(hiloCards(bytes, await rollBytes(1)), amt); pay = m ? amt * m : 0; win = pay > 0; shown = m ? m.toFixed(2) + '×' : 'Wrong guess'; }
+        else if (F.game === 'rps') { const E = ['🪨', '📄', '✂️'], me = ['rock', 'paper', 'scissors'].indexOf(F.pick), house = Math.floor(f * 3), r = (me - house + 3) % 3; win = r === 1; pay = win ? amt * mult() : 0; shown = E[me] + ' vs ' + E[house]; $('f-msg').textContent = ''; }
+        else if (F.game === 'towers') { const bombs = []; for (let i = 0; i < TW_ROWS; i++) { const o = i * 4; bombs.push(Math.floor((((bytes[o] << 24) >>> 0) + (bytes[o + 1] << 16) + (bytes[o + 2] << 8) + bytes[o + 3]) / 4294967296 * 3)); } const m = await runTowers(bombs, amt); pay = m ? amt * m : 0; win = pay > 0; shown = m ? m.toFixed(2) + '×' : 'Bomb!'; }
+        else if (F.game === 'special') { const blocks = await Promise.all([...Array(26).keys()].map(i => i ? rollBytes(i) : bytes)), fl = []; blocks.forEach(b => { for (let o = 0; o < 32; o += 4) fl.push((((b[o] << 24) >>> 0) + (b[o + 1] << 16) + (b[o + 2] << 8) + b[o + 3]) / 4294967296); }); let ix = 0; const res = spRound(() => fl[ix++]); await playSlot(res, amt); pay = amt * res.total; win = pay > amt; shown = res.total.toFixed(2) + '×'; }
+        else if (F.game === 'crash') { const x = Math.max(1, RTP.crash / (1 - f)), auto = parseFloat($('f-ac') && $('f-ac').value) || 0, cash = await runCrash(x, auto >= 1.01 ? auto : 0); pay = cash ? amt * cash : 0; win = pay > 0; shown = cash ? cash.toFixed(2) + '×' : 'Crashed ' + x.toFixed(2) + '×'; }
+        else if (F.game === 'wheel') { const idx = Math.floor(f * 20), m = WHEEL[idx]; await spinWheel(idx); pay = amt * m; win = pay > amt; shown = m + '×'; }
+        else if (F.game === 'keno') { const drawn = kenoDraw(bytes, await rollBytes(1)), hits = F.picks.filter(n => drawn.includes(n)).length, m = KT[F.picks.length][hits] || 0; pay = amt * m; win = pay > amt; shown = hits + (hits === 1 ? ' hit' : ' hits'); renderKeno(drawn); }
+        else { slot = [...bytes.slice(0, 10)].filter(v => v >= 128).length; shown = PM[slot].toFixed(2) + '×'; pay = amt * PM[slot]; win = pay > amt; $('f-board').innerHTML = board(); await drop(bytes); $('f-board').innerHTML = board(slot); }
+        state.balance += pay; state.sessionProfit += pay; F.profit += pay; if (pay > 0 && window.Stats) Stats.pay(F.game, pay, amt + (F.extraWager || 0)); F.pending = 0; F.extraWager = 0;
+        $('f-big').textContent = shown; $('f-big').style.color = win ? '#00e701' : '#ef4444';
+        $('f-msg').textContent = pay > 0 ? `${win ? 'You won' : 'You got back'} $${pay.toFixed(2)}${F.game === 'plinko' ? '' : '!'}` : 'You lost';
+        $('f-hist').insertAdjacentHTML('afterbegin', `<span class="px-2 py-1 rounded text-[10px] font-mono font-bold ${win ? 'bg-emerald-900 text-emerald-300' : 'bg-red-950 text-red-300'}">${shown}</span>`);
+        if ($('f-hist').children.length > 12) $('f-hist').lastChild.remove();
+        try { win ? soundFX.playWin() : soundFX.playPop(); } catch (e) {}
+        $('f-prev').classList.remove('hidden'); $('f-prev-seed').textContent = F.server;
+        const ok = (await sha(F.server)) === F.hash;
+        $('f-prev-ok').textContent = ok ? '✓ matches the hash shown before the bet' : '✗ mismatch'; $('f-prev-ok').className = 'font-bold ' + (ok ? 'text-stake-accent' : 'text-red-400');
+        F.nonce++; await rotate(); paint(); F.busy = false;
+      }
+      function open(g) {
+        F.game = g; $('f-board').innerHTML = g === 'plinko' ? board() : g === 'wheel' ? wheelStrip() : g === 'special' ? slotHtml(spIdle()) : g === 'blackjack' ? bjIdle() : g === 'diamonds' ? dBoard([0, 1, 2, 3, 4]) : g === 'towers' ? towersBoard({ row: 0, pick: [], over: false, idle: true }, []) : ''; ['home-screen', 'game-screen', 'mines-screen'].forEach(i => $(i).classList.add('hidden'));
+        $('fair-screen').classList.remove('hidden'); $('f-big').textContent = '—'; $('f-big').style.color = ''; $('f-msg').textContent = 'Place a bet'; opts(); if (g === 'keno') renderKeno();
+      }
+      document.querySelectorAll('[data-fair]').forEach(c => c.addEventListener('click', () => open(c.dataset.fair)));
+      $('brand-logo').addEventListener('click', e => {
+        if (F.busy && !$('fair-screen').classList.contains('hidden')) { e.stopImmediatePropagation(); $('f-msg').textContent = 'Finish your current round first.'; return; }
+        $('fair-screen').classList.add('hidden');
+      }, true);
+      $('f-go').onclick = bet;
+      $('f-half').onclick = () => $('f-bet').value = Math.max(0.01, (parseFloat($('f-bet').value) || 1) / 2).toFixed(2);
+      $('f-dbl').onclick = () => $('f-bet').value = Math.min(500, (parseFloat($('f-bet').value) || 1) * 2).toFixed(2);
+      $('f-client').value = rh(8);
+      if (window.crypto && crypto.subtle) rotate(); else { $('f-hash').textContent = 'Needs https:// or localhost'; $('f-go').disabled = true; }
+    })();
+
+    // ===================== DESPERADO SLOT: visual enhancements only (payouts untouched) =====================
+    (() => {
+      const wrap = document.getElementById('reel-box-wrapper'), out = document.getElementById('last-win-display');
+      function burst(n) {
+        const r = wrap.getBoundingClientRect();
+        for (let i = 0; i < n; i++) {
+          const c = document.createElement('div');
+          c.textContent = ['🪙', '⭐', '💰'][i % 3];
+          c.style.cssText = `position:fixed;left:${r.left + r.width / 2}px;top:${r.top + r.height / 2}px;z-index:45;pointer-events:none;font-size:${14 + Math.random() * 14}px;transition:transform 1.1s cubic-bezier(.2,.8,.3,1),opacity 1.1s`;
+          document.body.appendChild(c);
+          const a = Math.random() * Math.PI * 2, d = 80 + Math.random() * (r.width / 2);
+          requestAnimationFrame(() => { c.style.transform = `translate(${Math.cos(a) * d}px,${Math.sin(a) * d + 120}px) rotate(${Math.random() * 720}deg)`; c.style.opacity = '0'; });
+          setTimeout(() => c.remove(), 1200);
+        }
+      }
+      new MutationObserver(() => {
+        const v = parseFloat(out.textContent.replace('$', '')) || 0;
+        if (v <= 0) return;
+        const mult = v / (state.bet || 1);
+        burst(mult >= 2 ? 36 : 14);
+        wrap.style.transition = 'box-shadow .2s'; wrap.style.boxShadow = '0 0 45px rgba(245,158,11,.75)';
+        setTimeout(() => wrap.style.boxShadow = '', 700);
+      }).observe(out, { childList: true, characterData: true, subtree: true });
+    })();
+  </script>
+  <script>
+    // ===================== ACCOUNTS, ONLINE PRESENCE & TIPPING (browser-local) =====================
+    (() => {
+      const $ = id => document.getElementById(id), enc = new TextEncoder();
+      const KEY = 'stiku_users', PRES = 'stiku_presence', SES = 'stiku_session';
+      const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+      const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+      const b2h = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+      const h2b = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+      async function hashPw(pw, saltHex) {
+        const k = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+        return b2h(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: h2b(saltHex), iterations: 150000, hash: 'SHA-256' }, k, 256));
+      }
+      let me = null, mode = 'login'; window.StikuUser = () => me;
+      // ---- Server mode: when this page is served by server.js, accounts / balances / tips / online live on the server ----
+      const Net = window.Net = {
+        on: false, token: sessionStorage.getItem('stiku_tok') || '', me: null, pub: [], inflight: 0, modData: null,
+        async api(path, body, extra = {}) {
+          Net.inflight++;
+          try {
+            const r = await fetch(path, { method: body === undefined ? 'GET' : 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, Net.token ? { Authorization: 'Bearer ' + Net.token } : {}, extra), body: body === undefined ? undefined : JSON.stringify(body) });
+            const j = await r.json().catch(() => ({})); if (!r.ok && !j.error) j.error = 'Server error'; j.status = r.status; return j;
+          } catch (e) { return { error: 'Cannot reach the server.', status: 0 }; } finally { Net.inflight--; }
+        },
+        send(path, body) { return Net.api(path, body); },
+        usersMap() {
+          const m = {}; (Net.pub || []).forEach(p => { m[p.name.toLowerCase()] = { name: p.name, created: p.created, stats: p.stats }; });
+          if (Net.me) m[Net.me.name.toLowerCase()] = { name: Net.me.name, created: Net.me.created, stats: Net.me.stats }; return m;
+        }
+      };
+      Net.ready = location.protocol.startsWith('http') ? fetch('/api/ping').then(r => r.json()).then(j => { Net.on = !!j.ok; }).catch(() => {}) : Promise.resolve();
+      const allUsers = () => Net.on ? Net.usersMap() : read(KEY, {});
+      const toast = t => { const e = $('toast'); e.textContent = t; e.classList.remove('hidden'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.add('hidden'), 3500); };
+
+      function setMode(m) {
+        mode = m; $('auth-err').textContent = '';
+        $('auth-pass2').classList.toggle('hidden', m === 'login');
+        $('auth-submit').textContent = m === 'login' ? 'Log In' : 'Create Account';
+        $('tab-login').textContent = 'Log In'; $('tab-register').textContent = 'Sign Up';
+        $('tab-login').className = 'py-2 rounded-lg font-bold text-xs ' + (m === 'login' ? 'bg-stake-accent text-stake-dark' : 'bg-stake-card text-stake-text');
+        $('tab-register').className = 'py-2 rounded-lg font-bold text-xs ' + (m === 'register' ? 'bg-stake-accent text-stake-dark' : 'bg-stake-card text-stake-text');
+      }
+      async function submit() {
+        const name = $('auth-user').value.trim(), pw = $('auth-pass').value, key = name.toLowerCase(), users = read(KEY, {});
+        const err = t => $('auth-err').textContent = t;
+        await Net.ready;
+        if (Net.on) {
+          if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) return err('Username: 3-16 letters, numbers or _.');
+          if (pw.length < 6) return err('Password must be at least 6 characters.');
+          if (mode === 'register' && pw !== $('auth-pass2').value) return err('Passwords do not match.');
+          $('auth-submit').disabled = true; const r = await Net.api(mode === 'register' ? '/api/register' : '/api/login', { name, pw }); $('auth-submit').disabled = false;
+          if (r.error) return err(r.error); Net.token = r.token; sessionStorage.setItem('stiku_tok', r.token); return loginRemote(r.me);
+        }
+        if (!window.crypto || !crypto.subtle) return err('Needs https:// or localhost to hash passwords.');
+        if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) return err('Username: 3-16 letters, numbers or _.');
+        if (pw.length < 6) return err('Password must be at least 6 characters.');
+        $('auth-submit').disabled = true;
+        try {
+          if (mode === 'register') {
+            if (pw !== $('auth-pass2').value) return err('Passwords do not match.');
+            if (users[key]) return err('That username is taken.');
+            const salt = b2h(crypto.getRandomValues(new Uint8Array(16)));
+            users[key] = { name, salt, hash: await hashPw(pw, salt), balance: 0, inbox: [], tips: [], created: Date.now() };
+            write(KEY, users);
+          } else {
+            const u = users[key];
+            if (!u || (await hashPw(pw, u.salt)) !== u.hash) return err('Wrong username or password.');
+          }
+          login(key);
+        } finally { $('auth-submit').disabled = false; }
+      }
+      function login(key) {
+        const users = read(KEY, {}); me = key; sessionStorage.setItem(SES, key);
+        state.balance = users[key].balance; state.sessionProfit = 0;
+        $('auth-pass').value = $('auth-pass2').value = ''; $('auth-modal').classList.add('hidden');
+        $('nav-auth-label').textContent = users[key].name + ' • Log out';
+        beat(); updateUI(); toast('Welcome, ' + users[key].name + '!');
+      }
+      function loginRemote(m) {
+        me = m.name.toLowerCase(); Net.me = m; state.balance = m.balance; state.sessionProfit = 0;
+        $('auth-pass').value = $('auth-pass2').value = ''; $('auth-modal').classList.add('hidden'); $('nav-auth-label').textContent = m.name + ' • Log out';
+        updateUI(); toast('Welcome, ' + m.name + '!'); poll();
+      }
+      async function poll() {
+        if (!(Net.on && Net.token)) return;
+        const r = await Net.api('/api/state');
+        if (r.status === 401) { sessionStorage.removeItem('stiku_tok'); location.reload(); return; }
+        if (!r.me) return;
+        Net.me = r.me; Net.pub = r.players;
+        if (!Net.inflight && Math.abs(state.balance - r.me.balance) > 1e-6) { state.balance = r.me.balance; updateUI(); }
+        (r.notes || []).forEach(t => { toast(t); try { soundFX.playWin(); } catch (e) {} });
+      }
+      function logout() {
+        if (Net.on) { Net.api('/api/logout', {}).then(() => { sessionStorage.removeItem('stiku_tok'); location.reload(); }); return; }
+        save(); const p = read(PRES, {}); delete p[me]; write(PRES, p); me = null; sessionStorage.removeItem(SES); location.reload(); }
+
+      // persist balance + receive tips
+      function save() {
+        if (!me || Net.on) return; const users = read(KEY, {}); if (!users[me]) return;
+        users[me].balance = state.balance; write(KEY, users);
+      }
+      function receive() {
+        if (!me || Net.on) return; const users = read(KEY, {}), u = users[me]; if (!u || !u.inbox.length) return;
+        const got = u.inbox.splice(0); const sum = got.reduce((a, t) => a + t.amt, 0);
+        state.balance += sum; u.balance = state.balance; write(KEY, users); updateUI();
+        toast('💸 ' + got.map(t => '$' + t.amt.toFixed(2) + ' from ' + t.from + (t.note ? ' — ' + t.note : '')).join(', '));
+      }
+
+      // online presence (players using this browser)
+      function beat() { if (!me || Net.on) return; const p = read(PRES, {}); p[me] = Date.now(); write(PRES, p); }
+      function online() { if (Net.on) return Net.pub.filter(p => p.online).map(p => p.name); const p = read(PRES, {}), u = read(KEY, {}); return Object.keys(p).filter(k => Date.now() - p[k] < 8000 && u[k]).map(k => u[k].name); }
+      function paintOnline() {
+        const on = online(); $('online-count').textContent = on.length;
+        $('acct-count').textContent = Object.keys(allUsers()).length;
+        $('online-badge').title = on.length ? 'Online: ' + on.join(', ') : 'Nobody online';
+        if (!$('tip-modal').classList.contains('hidden')) playerList();
+      }
+
+      // tipping
+      let tipPending = null;
+      const tipsOf = () => Net.on ? ((Net.me && Net.me.tips) || []) : ((read(KEY, {})[me] || { tips: [] }).tips);
+      function playerList() {
+        const users = allUsers(), on = new Set(online().map(n => n.toLowerCase())), q = $('tip-to').value.trim().toLowerCase();
+        $('tip-total').textContent = Object.keys(users).length;
+        const rows = Object.keys(users).filter(k => k !== me && (!q || k.includes(q))).sort((a, b) => (on.has(b) - on.has(a)) || users[a].name.localeCompare(users[b].name));
+        $('tip-online').innerHTML = rows.map(k => `<button data-n="${users[k].name}" class="w-full flex items-center justify-between px-2 py-1.5 rounded bg-stake-dark hover:bg-stake-card text-xs"><span class="font-bold text-white"><span class="${on.has(k) ? 'text-stake-accent' : 'text-stone-600'}">●</span> ${users[k].name}</span><span class="text-stone-500">${users[k].created ? 'joined ' + new Date(users[k].created).toLocaleDateString() : ''}</span></button>`).join('') || '<div class="text-[11px] text-stone-500">No other players yet</div>';
+        $('tip-online').querySelectorAll('button').forEach(b => b.onclick = () => { $('tip-to').value = b.dataset.n; resetTip(); $('tip-amt').focus(); });
+      }
+      function resetTip() { tipPending = null; $('tip-send').textContent = 'Send tip'; }
+      function tipRecent() {
+        const t = tipsOf().filter(x => x.dir === 'out'), seen = [];
+        for (let i = t.length - 1; i >= 0 && seen.length < 4; i--) if (!seen.includes(t[i].who)) seen.push(t[i].who);
+        $('tip-recent').innerHTML = seen.length ? '<span class="text-[10px] uppercase font-bold text-stake-muted self-center">Recent:</span>' + seen.map(n => `<button data-n="${n}" class="px-2 py-1 rounded bg-stake-card hover:bg-stone-700 text-xs text-white font-bold">${n}</button>`).join('') : '';
+        $('tip-recent').querySelectorAll('button').forEach(b => b.onclick = () => { $('tip-to').value = b.dataset.n; resetTip(); playerList(); $('tip-amt').focus(); });
+      }
+      function openTip() {
+        if (!me) return $('auth-modal').classList.remove('hidden');
+        $('tip-modal').classList.replace('hidden', 'flex'); $('tip-msg').textContent = ''; resetTip();
+        $('tip-quick').innerHTML = [0.1, 0.5, 1, 5, 'Max'].map(v => `<button data-v="${v}" class="flex-1 py-1.5 rounded bg-stake-card hover:bg-stone-700 text-xs font-bold text-white">${v === 'Max' ? 'Max' : '$' + v}</button>`).join('');
+        $('tip-quick').querySelectorAll('button').forEach(b => b.onclick = () => { $('tip-amt').value = b.dataset.v === 'Max' ? Math.floor(state.balance * 100) / 100 : b.dataset.v; resetTip(); });
+        playerList(); tipRecent(); tipLog();
+      }
+      function tipLog() {
+        const t = tipsOf();
+        $('tip-log').innerHTML = t.slice(-8).reverse().map(x => `<div>${x.dir === 'out' ? '→ sent' : '← got'} <b>$${x.amt.toFixed(2)}</b> ${x.dir === 'out' ? 'to' : 'from'} ${x.who}${x.t ? ' • ' + new Date(x.t).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</div>`).join('') || '<div class="text-stone-500">None yet</div>';
+      }
+      async function sendTip() {
+        const msg = (t, ok) => { $('tip-msg').textContent = t; $('tip-msg').className = 'text-xs font-bold ' + (ok ? 'text-stake-accent' : 'text-red-400'); };
+        const to = $('tip-to').value.trim().toLowerCase(), amt = Math.round((parseFloat($('tip-amt').value) || 0) * 100) / 100, users = allUsers(), note = ($('tip-note').value || '').trim().slice(0, 40).replace(/[<>&"]/g, '');
+        if (!to) return msg('Enter a username.');
+        if (!users[to]) return msg('No player with that username.');
+        if (to === me) return msg("You can't tip yourself.");
+        if (amt < 0.10) return msg('Minimum tip is $0.10.');
+        if (amt > state.balance) return msg('Insufficient balance.');
+        const key = to + '|' + amt;
+        if (tipPending !== key) { tipPending = key; $('tip-send').textContent = 'Confirm'; return msg(`Send $${amt.toFixed(2)} to ${users[to].name}? Press Confirm.`, true); }
+        resetTip();
+        if (Net.on) {
+          $('tip-send').disabled = true; const r = await Net.api('/api/tip', { to, amt, note }); $('tip-send').disabled = false;
+          if (r.error) return msg(r.error);
+          state.balance = r.balance; state.sessionProfit -= amt; Net.me = r.me; updateUI(); $('tip-amt').value = ''; $('tip-note').value = ''; tipLog(); tipRecent(); return msg(r.message, true);
+        }
+        const ls = read(KEY, {}), now = Date.now();
+        state.balance -= amt; state.sessionProfit -= amt;
+        ls[to].inbox.push({ from: ls[me].name, amt, note }); ls[to].tips.push({ dir: 'in', who: ls[me].name, amt, t: now });
+        ls[me].tips.push({ dir: 'out', who: ls[to].name, amt, t: now }); ls[me].balance = state.balance; write(KEY, ls);
+        updateUI(); $('tip-amt').value = ''; $('tip-note').value = ''; tipLog(); tipRecent(); msg(`Sent $${amt.toFixed(2)} to ${ls[to].name}!`, true);
+      }
+
+      // wiring
+      $('tab-login').onclick = () => setMode('login'); $('tab-register').onclick = () => setMode('register');
+      $('auth-submit').onclick = submit;
+      ['auth-user', 'auth-pass', 'auth-pass2'].forEach(i => $(i).addEventListener('keydown', e => { if (e.key === 'Enter') submit(); }));
+      $('nav-auth').onclick = () => me ? logout() : $('auth-modal').classList.remove('hidden');
+      $('btn-tip').onclick = openTip; $('tip-send').onclick = sendTip; $('tip-to').addEventListener('input', () => { resetTip(); playerList(); }); $('tip-amt').addEventListener('input', resetTip);
+      $('tip-cancel').onclick = () => $('tip-modal').classList.replace('flex', 'hidden');
+      window.addEventListener('beforeunload', () => { save(); if (me && !Net.on) { const p = read(PRES, {}); delete p[me]; write(PRES, p); } });
+      window.addEventListener('storage', () => { receive(); paintOnline(); });
+      setInterval(() => { if (Net.on) poll(); else { beat(); save(); receive(); } paintOnline(); }, 2000);
+      $('online-badge').onclick = openTip;
+
+      setMode('login');
+Net.ready.then(async () => {
+        if (Net.on) {
+          if (Net.token) { const r = await Net.api('/api/state'); if (r.me) { Net.pub = r.players; loginRemote(r.me); } else { sessionStorage.removeItem('stiku_tok'); Net.token = ''; } }
+          paintOnline();
+        } else { const ses = sessionStorage.getItem(SES); if (ses && read(KEY, {})[ses]) login(ses); paintOnline(); }
+      });
+    })();
+  </script>
+  <script>
+    // ===================== STATS & TOP-20 LEADERBOARD =====================
+    (() => {
+      const $ = id => document.getElementById(id), KEY = 'stiku_users';
+      const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
+      const GN = { slot: 'Desperado Wilds', mines: 'Mines', dice: 'Dice', flip: 'Coin Flip', limbo: 'Limbo', plinko: 'Plinko', crash: 'Crash', wheel: 'Lucky Wheel', keno: 'Keno', towers: 'Towers', special: 'Stiku Special', rps: 'Rock Paper Scissors', roulette: 'Roulette', hilo: 'Hi-Lo', diamonds: 'Diamonds', blackjack: 'Blackjack' };
+      const day = (o = 0) => new Date(Date.now() - o * 864e5).toISOString().slice(0, 10);
+      const money = n => (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const blank = () => ({ wagered: 0, bets: 0, wins: 0, payout: 0, biggest: { amt: 0, mult: 0, game: '' }, games: {}, daily: {}, curve: [0], hidden: false });
+      function edit(fn) {
+        const me = window.StikuUser && StikuUser(); if (!me) return;
+        const users = read(), u = users[me]; if (!u) return;
+        u.stats = Object.assign(blank(), u.stats || {}); fn(u.stats);
+        u.stats.curve = u.stats.curve.slice(-60);
+        try { localStorage.setItem(KEY, JSON.stringify(users)); } catch (e) {}
+      }
+      const g = (st, k) => st.games[k] = st.games[k] || { wagered: 0, bets: 0, wins: 0, payout: 0 };
+      window.Stats = {
+        gift(amt) { if (window.Net && Net.on) Net.send('/api/gift', { amt }); },
+        bet(game, amt) { if (window.Net && Net.on) { Net.send('/api/bet', { game, amt }); return; } edit(st => {
+          st.wagered += amt; st.bets++; st.daily[day()] = (st.daily[day()] || 0) + amt;
+          const x = g(st, game); x.wagered += amt; x.bets++;
+          st.curve.push(st.payout - st.wagered);
+        }); },
+        pay(game, amt, wager) { if (window.Net && Net.on) { Net.send('/api/pay', { game, amt, wager }); return; } edit(st => {
+          st.payout += amt; const x = g(st, game); x.payout += amt;
+          if (amt > wager) { st.wins++; x.wins++; }
+          const m = wager > 0 ? amt / wager : 0;
+          if (amt > st.biggest.amt) st.biggest = { amt, mult: m, game };
+          st.curve[st.curve.length - 1] = st.payout - st.wagered;
+        }); }
+      };
+
+      let tab = 'top', period = 'all';
+      const wagerIn = st => period === 'all' ? st.wagered : period === 'day' ? (st.daily[day()] || 0)
+        : [0, 1, 2, 3, 4, 5, 6].reduce((a, i) => a + (st.daily[day(i)] || 0), 0);
+
+      const usersSrc = () => (window.Net && Net.on) ? Net.usersMap() : read();
+      function top() {
+        const me = window.StikuUser && StikuUser(), users = usersSrc();
+        const rows = Object.keys(users).map(k => ({ k, u: users[k], st: Object.assign(blank(), users[k].stats || {}) }))
+          .map(r => ({ ...r, w: wagerIn(r.st) })).filter(r => r.w > 0).sort((a, b) => b.w - a.w).slice(0, 20);
+        const pb = (id, l) => `<button data-p="${id}" class="px-3 py-1.5 rounded-lg text-xs font-bold ${period === id ? 'bg-stake-accent text-stake-dark' : 'bg-stake-card text-stake-text'}">${l}</button>`;
+        const medal = i => ['🥇', '🥈', '🥉'][i] || i + 1;
+        $('st-body').innerHTML = `<div class="flex items-center justify-between mb-3"><div class="flex gap-2">${pb('day', 'Today')}${pb('week', '7 days')}${pb('all', 'All time')}</div></div>
+          <div class="overflow-x-auto"><table class="w-full text-xs"><thead class="text-stake-muted uppercase text-[10px]"><tr><th class="text-left py-2">#</th><th class="text-left">Player</th><th class="text-right">Wagered</th><th class="text-right">Profit</th><th class="text-right">Bets</th></tr></thead><tbody>
+          ${rows.map((r, i) => `<tr class="border-t border-stake-card ${r.k === me ? 'bg-stake-accent/10' : ''}"><td class="py-2 font-bold">${medal(i)}</td><td class="font-bold text-white">${r.st.hidden && r.k !== me ? '🕶 Hidden' : r.u.name}${r.k === me ? ' (you)' : ''}</td><td class="text-right font-mono">${money(r.w)}</td><td class="text-right font-mono ${r.st.payout - r.st.wagered >= 0 ? 'text-stake-accent' : 'text-red-400'}">${money(r.st.payout - r.st.wagered)}</td><td class="text-right font-mono">${r.st.bets}</td></tr>`).join('') || '<tr><td colspan="5" class="py-6 text-center text-stone-500">No wagers yet — place a bet to get on the board.</td></tr>'}
+          </tbody></table></div><p class="text-[10px] text-stone-500 mt-3">Ranked by amount wagered${(window.Net && Net.on) ? '' : ' among accounts on this browser'}. Profit = total payouts − total wagered.</p>`;
+        $('st-body').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { period = b.dataset.p; top(); });
+      }
+
+      function mine() {
+        const me = window.StikuUser && StikuUser(), u = me && usersSrc()[me];
+        if (!u) { $('st-body').innerHTML = '<p class="text-stone-400 text-center py-8">Log in to see your stats.</p>'; return; }
+        const st = Object.assign(blank(), u.stats || {}), net = st.payout - st.wagered, losses = Math.max(0, st.bets - st.wins);
+        const card = (l, v, c = 'text-white') => `<div class="bg-stake-dark border border-stake-card rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-stake-muted">${l}</div><div class="font-mono font-bold mt-1 ${c}">${v}</div></div>`;
+        const c = st.curve, mn = Math.min(...c, 0), mx = Math.max(...c, 0), rng = mx - mn || 1;
+        const pts = c.map((v, i) => `${(i / Math.max(1, c.length - 1) * 300).toFixed(1)},${(58 - (v - mn) / rng * 54).toFixed(1)}`).join(' ');
+        $('st-body').innerHTML = `<div class="flex items-center justify-between mb-3"><h3 class="font-bold text-white text-base">${u.name}'s stats</h3>
+          <label class="flex items-center gap-2 text-xs text-stake-text cursor-pointer"><input id="st-hide" type="checkbox" ${st.hidden ? 'checked' : ''}> Hide my name on leaderboard</label></div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">${card('Total wagered', money(st.wagered))}${card('Total bets', st.bets)}${card('Wins', st.wins, 'text-stake-accent')}${card('Losses', losses, 'text-red-400')}
+          ${card('Net profit', money(net), net >= 0 ? 'text-stake-accent' : 'text-red-400')}${card('Win rate', st.bets ? (st.wins / st.bets * 100).toFixed(1) + '%' : '—')}${card('Biggest win', money(st.biggest.amt))}${card('Best multiplier', st.biggest.mult ? st.biggest.mult.toFixed(2) + '×' : '—')}</div>
+          <div class="mt-4 bg-stake-dark border border-stake-card rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-stake-muted mb-1">Profit curve (last ${c.length - 1} bets)</div>
+          <svg viewBox="0 0 300 60" class="w-full h-16"><line x1="0" x2="300" y1="${(58 - (0 - mn) / rng * 54).toFixed(1)}" y2="${(58 - (0 - mn) / rng * 54).toFixed(1)}" stroke="#2f4553" stroke-dasharray="3"/><polyline fill="none" stroke="${net >= 0 ? '#00e701' : '#ef4444'}" stroke-width="2" points="${pts}"/></svg></div>
+          <table class="w-full text-xs mt-4"><thead class="text-stake-muted uppercase text-[10px]"><tr><th class="text-left py-2">Game</th><th class="text-right">Bets</th><th class="text-right">Wagered</th><th class="text-right">Profit</th></tr></thead><tbody>
+          ${Object.keys(GN).map(k => { const x = st.games[k] || { bets: 0, wagered: 0, payout: 0 }; const p = x.payout - x.wagered; return `<tr class="border-t border-stake-card"><td class="py-2 text-white font-bold">${GN[k]}</td><td class="text-right font-mono">${x.bets}</td><td class="text-right font-mono">${money(x.wagered)}</td><td class="text-right font-mono ${p >= 0 ? 'text-stake-accent' : 'text-red-400'}">${money(p)}</td></tr>`; }).join('')}</tbody></table>`;
+        $('st-hide').onchange = e => (window.Net && Net.on) ? Net.send('/api/hide', { hidden: e.target.checked }) : edit(s2 => s2.hidden = e.target.checked);
+      }
+
+      function render() {
+        $('st-tab-top').textContent = '🏆 Top 20 Wagerers'; $('st-tab-me').textContent = '📊 My Stats';
+        $('st-tab-top').className = 'px-3 py-2 rounded-lg text-xs font-bold ' + (tab === 'top' ? 'bg-stake-accent text-stake-dark' : 'bg-stake-card text-stake-text');
+        $('st-tab-me').className = 'px-3 py-2 rounded-lg text-xs font-bold ' + (tab === 'me' ? 'bg-stake-accent text-stake-dark' : 'bg-stake-card text-stake-text');
+        tab === 'top' ? top() : mine();
+      }
+      const open = t => { tab = t; $('stats-modal').classList.replace('hidden', 'flex'); render(); };
+      $('nav-stats').onclick = () => open('top'); $('lobby-stats').onclick = () => open('top');
+      $('st-tab-top').onclick = () => { tab = 'top'; render(); }; $('st-tab-me').onclick = () => { tab = 'me'; render(); };
+      $('st-close').onclick = () => $('stats-modal').classList.replace('flex', 'hidden');
+      setInterval(() => { if (!$('stats-modal').classList.contains('hidden') && tab === 'top') render(); }, 5000);
+    })();
+  </script>
+  <script>
+    // ===================== PROMO CODES =====================
+    // No built-in codes. Moderators create and delete codes from the Mod panel.
+    (() => {
+      const $ = id => document.getElementById(id), enc = new TextEncoder(), KEY = 'stiku_users', USES = 'stiku_promo_uses';
+      const readCodes = () => read('stiku_promo_codes', []);
+      const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(t)))].map(x => x.toString(16).padStart(2, '0')).join('');
+      const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+      window.Promo = { codes: () => read('stiku_promo_codes', []) };
+      const msg = (t, ok) => { $('promo-msg').textContent = t; $('promo-msg').className = 'text-xs font-bold ' + (ok ? 'text-stake-accent' : 'text-red-400'); };
+      function log() {
+        const me = window.StikuUser && StikuUser(), u = me && ((window.Net && Net.on) ? Net.me : read(KEY, {})[me]);
+        $('promo-log').innerHTML = ((u && u.promos) || []).slice(-6).reverse().map(x => `<div>🎁 +$${x.amt.toFixed(2)} • ${new Date(x.t).toLocaleDateString()}</div>`).join('') || '<div class="text-stone-500">None yet</div>';
+      }
+      async function redeem() {
+        const me = window.StikuUser && StikuUser(); if (!me) return msg('Log in first.');
+        if (window.Net && Net.on) {
+          const raw0 = $('promo-code').value.trim(); if (!raw0) return msg('Enter a code.');
+          const r = await Net.api('/api/promo', { code: raw0 }); if (r.error) return msg(r.error);
+          state.balance = r.balance; Net.me = r.me; updateUI(); msg(`Success! $${r.amount.toFixed(2)} added to your balance.`, true); $('promo-code').value = ''; log(); return;
+        }
+        if (!window.crypto || !crypto.subtle) return msg('Needs https:// or localhost.');
+        const raw = $('promo-code').value.trim(); if (!raw) return msg('Enter a code.');
+        const h = raw.toUpperCase().replace(/\s+/g, ''), c = readCodes().find(x => x.code === h);
+        if (!c) return msg('Invalid promo code.');
+        if (c.expires && Date.now() > c.expires) return msg('This code has expired.');
+        const users = read(KEY, {}), u = users[me], uses = read(USES, {});
+        u.promos = u.promos || [];
+        if (u.promos.filter(p => p.h === h).length >= c.perAccount) return msg('You already redeemed this code.');
+        if ((uses[h] || 0) >= c.maxUses) return msg('This code has reached its usage limit.');
+        uses[h] = (uses[h] || 0) + 1; localStorage.setItem(USES, JSON.stringify(uses));
+        state.balance += c.amount; u.balance = state.balance; u.promos.push({ h, amt: c.amount, t: Date.now() });
+        localStorage.setItem(KEY, JSON.stringify(users)); updateUI();
+        msg(`Success! $${c.amount.toFixed(2)} added to your balance.`, true); $('promo-code').value = ''; log();
+      }
+      $('btn-promo').onclick = () => { if (!(window.StikuUser && StikuUser())) return $('auth-modal').classList.remove('hidden'); $('promo-modal').classList.replace('hidden', 'flex'); $('promo-msg').textContent = ''; log(); };
+      $('promo-close').onclick = () => $('promo-modal').classList.replace('flex', 'hidden');
+      $('promo-go').onclick = redeem;
+      $('promo-code').addEventListener('keydown', e => { if (e.key === 'Enter') redeem(); });
+    })();
+  </script>
+  <script>
+    // Mobile shortcuts: the desktop nav is hidden on small screens, so mirror login / stats / online here.
+    (() => {
+      const $ = id => document.getElementById(id);
+      $('m-auth').onclick = () => $('nav-auth').click();
+      $('m-stats').onclick = () => $('nav-stats').click();
+      $('m-online').onclick = () => $('online-badge').click();
+      const sync = () => {
+        $('m-auth-label').textContent = $('nav-auth-label').textContent;
+        $('m-online-count').textContent = $('online-count').textContent;
+        $('m-acct-count').textContent = $('acct-count').textContent;
+      };
+      setInterval(sync, 1000); sync();
+    })();
+  </script>
+  <script>
+    // ===================== MODERATOR PANEL =====================
+    // Access needs the moderator key (stored only as a SHA-256 hash). To change it: run  Mod.hash('new key')  in the console and paste the result into MOD_HASH.
+    (() => {
+      const $ = id => document.getElementById(id), enc = new TextEncoder(), KEY = 'stiku_users', PRES = 'stiku_presence', SES = 'stiku_mod';
+      const MOD_HASH = '093a366bdb75bd7e284c306c2b1715248946ff620b2b588cfcf6455173a52b9c';
+      const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(t)))].map(x => x.toString(16).padStart(2, '0')).join('');
+      window.Mod = { hash: k => sha('stiku-mod:' + k) };
+      const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+      const money = n => (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const GN = { slot: ['Desperado Wilds', null], mines: ['Mines', .96], dice: ['Dice', .96], flip: ['Coin Flip', .96], limbo: ['Limbo', .7999], plinko: ['Plinko', .7999], crash: ['Crash', .75], wheel: ['Lucky Wheel', .75], keno: ['Keno', .75], towers: ['Towers', .75], special: ['Stiku Special', .75], rps: ['Rock Paper Scissors', .75], roulette: ['Roulette', .75], hilo: ['Hi-Lo', .75], diamonds: ['Diamonds', .75], blackjack: ['Blackjack', .75] };
+      function render() {
+        const D = (window.Net && Net.on) ? (Net.modData || { users: {}, online: {} }) : null, users = D ? D.users : read(KEY, {}), pres = D ? Object.fromEntries(Object.keys(D.online).map(k => [k, D.online[k] ? Date.now() : 0])) : read(PRES, {}), names = Object.keys(users);
+        const T = { wag: 0, pay: 0, bets: 0, bal: 0, tips: 0, promos: 0, dep: 0 }, G = {}, rows = [];
+        names.forEach(k => {
+          const u = users[k], st = u.stats || { wagered: 0, payout: 0, bets: 0, games: {} };
+          T.wag += st.wagered; T.pay += st.payout; T.bets += st.bets; T.bal += u.balance || 0;
+          (u.tips || []).forEach(t => { if (t.dir === 'out') T.tips += t.amt; });
+          T.promos += (u.promos || []).reduce((a, p) => a + p.amt, 0); T.dep += (u.deposits || []).reduce((a, d) => a + d.amt, 0);
+          Object.keys(st.games || {}).forEach(g => { const x = G[g] = G[g] || { w: 0, p: 0, b: 0 }; x.w += st.games[g].wagered; x.p += st.games[g].payout; x.b += st.games[g].bets; });
+          rows.push({ name: u.name, bal: u.balance || 0, w: st.wagered, net: st.payout - st.wagered, bets: st.bets, on: Date.now() - (pres[k] || 0) < 8000, joined: u.created });
+        });
+        rows.sort((a, b) => b.w - a.w);
+        const card = (l, v, c = 'text-white') => `<div class="bg-stake-dark border border-stake-card rounded-xl p-3"><div class="text-[10px] uppercase font-bold text-stake-muted">${l}</div><div class="font-mono font-bold mt-1 ${c}">${v}</div></div>`;
+        const house = T.wag - T.pay;
+        if (!$('mod-stats')) return;
+        $('mod-stats').innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">${card('Accounts', names.length)}${card('Online now', rows.filter(r => r.on).length, 'text-stake-accent')}${card('Total bets', T.bets.toLocaleString())}${card('Total wagered', money(T.wag))}
+          ${card('Total paid out', money(T.pay))}${card('House profit', money(house), house >= 0 ? 'text-stake-accent' : 'text-red-400')}${card('Realized RTP', T.wag ? (T.pay / T.wag * 100).toFixed(2) + '%' : '—')}${card('Player balances', money(T.bal))}
+          ${card('Tipped between players', money(T.tips))}${card('Promo credit given', money(T.promos))}${card('Deposited by mods', money(T.dep))}</div>
+          <div><div class="text-[10px] font-bold uppercase text-stake-muted mb-1">Per game — realized vs. advertised RTP</div><div class="overflow-x-auto"><table class="w-full text-xs"><thead class="text-stake-muted uppercase text-[10px]"><tr><th class="text-left py-2">Game</th><th class="text-right">Bets</th><th class="text-right">Wagered</th><th class="text-right">Paid out</th><th class="text-right">House profit</th><th class="text-right">Realized</th><th class="text-right">Advertised</th></tr></thead><tbody>
+          ${Object.keys(GN).map(g => { const x = G[g] || { w: 0, p: 0, b: 0 }; return `<tr class="border-t border-stake-card"><td class="py-2 font-bold text-white">${GN[g][0]}</td><td class="text-right font-mono">${x.b}</td><td class="text-right font-mono">${money(x.w)}</td><td class="text-right font-mono">${money(x.p)}</td><td class="text-right font-mono ${x.w - x.p >= 0 ? 'text-stake-accent' : 'text-red-400'}">${money(x.w - x.p)}</td><td class="text-right font-mono">${x.w ? (x.p / x.w * 100).toFixed(1) + '%' : '—'}</td><td class="text-right font-mono text-stone-400">${GN[g][1] ? (GN[g][1] * 100).toFixed(2).replace(/\.00$/, '') + '%' : '—'}</td></tr>`; }).join('')}</tbody></table></div>
+          <p class="text-[10px] text-stone-500 mt-1">Realized RTP only settles toward the advertised number over many bets; small samples swing a lot.</p></div>
+          <div><div class="text-[10px] font-bold uppercase text-stake-muted mb-1">Players</div><div class="overflow-x-auto"><table class="w-full text-xs"><thead class="text-stake-muted uppercase text-[10px]"><tr><th class="text-left py-2">Player</th><th class="text-right">Balance</th><th class="text-right">Wagered</th><th class="text-right">Net</th><th class="text-right">Bets</th><th class="text-right">Joined</th></tr></thead><tbody>
+          ${rows.map(r => `<tr class="border-t border-stake-card"><td class="py-2 font-bold text-white"><span class="${r.on ? 'text-stake-accent' : 'text-stone-600'}">●</span> ${r.name}</td><td class="text-right font-mono">${money(r.bal)}</td><td class="text-right font-mono">${money(r.w)}</td><td class="text-right font-mono ${r.net >= 0 ? 'text-stake-accent' : 'text-red-400'}">${money(r.net)}</td><td class="text-right font-mono">${r.bets}</td><td class="text-right text-stone-400">${r.joined ? new Date(r.joined).toLocaleDateString() : '—'}</td></tr>`).join('') || '<tr><td colspan="6" class="py-4 text-center text-stone-500">No accounts yet</td></tr>'}</tbody></table></div></div>
+          <p class="text-[10px] text-stone-500">Covers accounts stored in this browser only. Passwords are never shown (only salted hashes are stored).</p>`;
+      }
+      function toolsHtml() {
+        const inp = 'bg-stake-dark border border-stake-card rounded-lg px-3 py-2 text-white text-sm outline-none';
+        return `<div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-stake-dark/60 border border-stake-card rounded-xl p-3 space-y-2"><div class="font-bold text-white">➕ Add deposit to an account</div>
+            <input id="dep-user" placeholder="Username" class="w-full ${inp}"><input id="dep-amt" type="number" min="0.01" step="0.01" placeholder="Amount ($)" class="w-full ${inp}">
+            <button id="dep-go" class="btn-stiku-green w-full py-2.5 rounded-lg font-black text-xs uppercase">Credit account</button><div id="dep-msg" class="text-xs font-bold min-h-[1rem]"></div></div>
+          <div class="bg-stake-dark/60 border border-stake-card rounded-xl p-3 space-y-2"><div class="font-bold text-white">🎁 Create promo code</div>
+            <input id="pc-code" maxlength="20" placeholder="CODE (letters/numbers)" class="w-full ${inp} uppercase font-mono"><div class="grid grid-cols-2 gap-2"><input id="pc-amt" type="number" min="0.01" step="0.01" placeholder="Amount ($)" class="${inp}"><input id="pc-max" type="number" min="1" step="1" value="1" placeholder="Max uses" class="${inp}"></div>
+            <button id="pc-go" class="btn-stiku-green w-full py-2.5 rounded-lg font-black text-xs uppercase">Create code</button><div id="pc-msg" class="text-xs font-bold min-h-[1rem]"></div><div id="pc-list" class="space-y-1.5"></div></div></div>
+          <div class="bg-red-950/30 border border-red-900/50 rounded-xl p-3 flex items-center justify-between gap-3"><div class="text-xs text-red-200">Reset stats wipes every player's bets, wagers, wins and leaderboard history. Balances stay.</div><button id="reset-go" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase shrink-0">Reset all stats</button></div>
+          ${(window.Net && Net.on) ? '' : '<p class="text-[10px] text-stone-500">Running without the server: deposits, promo codes and accounts are saved in this browser only.</p>'}`;
+      }
+      async function modApi(path, body, msgId) {
+        const r = await Net.api(path, body, { 'x-mod': MOD_HASH }); if (r.error) return say(msgId, r.error);
+        say(msgId, r.message || 'Done', true); await refreshMod();
+      }
+      async function refreshMod() {
+        if (window.Net && Net.on) { const r = await Net.api('/api/mod/state', undefined, { 'x-mod': MOD_HASH }); if (!r.error) Net.modData = r; }
+        render(); promoList();
+      }
+      function say(id, t, ok) { $(id).textContent = t; $(id).className = 'text-xs font-bold min-h-[1rem] ' + (ok ? 'text-stake-accent' : 'text-red-400'); }
+      function promoList() {
+        const on = window.Net && Net.on, c = on ? ((Net.modData && Net.modData.codes) || []) : read('stiku_promo_codes', []), u = on ? Object.fromEntries(c.map(x => [x.code, x.used || 0])) : read('stiku_promo_uses', {});
+        $('pc-list').innerHTML = c.map(x => `<div class="flex items-center justify-between bg-stake-dark border border-stake-card rounded-lg px-3 py-2 text-xs"><span><b class="text-white font-mono">${x.code}</b> • $${x.amount.toFixed(2)} • used ${u[x.code] || 0}/${x.maxUses}</span><button data-del="${x.code}" class="text-red-400 font-bold">Delete</button></div>`).join('') || '<div class="text-stone-500 text-xs">No promo codes yet</div>';
+        $('pc-list').querySelectorAll('[data-del]').forEach(b => b.onclick = () => { if (on) return modApi('/api/mod/promo-delete', { code: b.dataset.del }, 'pc-msg'); localStorage.setItem('stiku_promo_codes', JSON.stringify(read('stiku_promo_codes', []).filter(x => x.code !== b.dataset.del))); promoList(); });
+      }
+      function wireTools() {
+        $('reset-go').onclick = async () => {
+          if (prompt("Type RESET to wipe every player's stats (balances are NOT changed).") !== 'RESET') return;
+          if (window.Net && Net.on) { const r = await Net.api('/api/mod/reset-stats', {}, { 'x-mod': MOD_HASH }); if (r.error) return alert(r.error); await refreshMod(); return alert(r.message); }
+          const us = read(KEY, {}); Object.keys(us).forEach(k => { delete us[k].stats; }); localStorage.setItem(KEY, JSON.stringify(us)); render(); alert('All stats were reset. Balances were not changed.');
+        };
+        $('dep-go').onclick = () => {
+          if (window.Net && Net.on) return modApi('/api/mod/deposit', { name: $('dep-user').value.trim(), amt: parseFloat($('dep-amt').value) || 0 }, 'dep-msg').then(() => { $('dep-amt').value = ''; });
+          const to = $('dep-user').value.trim().toLowerCase(), amt = Math.round((parseFloat($('dep-amt').value) || 0) * 100) / 100, users = read(KEY, {});
+          if (!users[to]) return say('dep-msg', 'No account with that username.');
+          if (!(amt > 0) || amt > 100000) return say('dep-msg', 'Enter an amount between $0.01 and $100,000.');
+          const u = users[to]; u.inbox = u.inbox || []; u.deposits = u.deposits || [];
+          u.inbox.push({ from: 'Deposit', amt }); u.deposits.push({ amt, t: Date.now() });
+          localStorage.setItem(KEY, JSON.stringify(users)); say('dep-msg', `Credited $${amt.toFixed(2)} to ${u.name}.`, true);
+          $('dep-amt').value = ''; render();
+        };
+        $('pc-go').onclick = () => {
+          if (window.Net && Net.on) return modApi('/api/mod/promo', { code: $('pc-code').value.trim(), amount: parseFloat($('pc-amt').value) || 0, max: +$('pc-max').value || 0 }, 'pc-msg').then(() => { $('pc-code').value = ''; });
+          const code = $('pc-code').value.trim().toUpperCase(), amt = Math.round((parseFloat($('pc-amt').value) || 0) * 100) / 100, max = Math.floor(+$('pc-max').value) || 0, codes = read('stiku_promo_codes', []);
+          if (!/^[A-Z0-9_-]{3,20}$/.test(code)) return say('pc-msg', 'Code: 3-20 letters, numbers, - or _.');
+          if (!(amt > 0) || amt > 100000) return say('pc-msg', 'Enter a valid amount.');
+          if (max < 1) return say('pc-msg', 'Max uses must be at least 1.');
+          if (codes.some(x => x.code === code)) return say('pc-msg', 'That code already exists.');
+          codes.push({ code, amount: amt, maxUses: max, perAccount: 1, created: Date.now() }); localStorage.setItem('stiku_promo_codes', JSON.stringify(codes));
+          say('pc-msg', `Created ${code} ($${amt.toFixed(2)}, ${max} use${max > 1 ? 's' : ''}).`, true); $('pc-code').value = ''; promoList();
+        };
+      }
+      function show() {
+        $('mod-login').classList.add('hidden'); $('mod-body').classList.remove('hidden');
+        if (!$('mod-stats')) { $('mod-body').innerHTML = '<div id="mod-stats"></div><div id="mod-tools">' + toolsHtml() + '</div>'; wireTools(); }
+        refreshMod();
+      }
+      function open() {
+        $('mod-modal').classList.replace('hidden', 'flex'); $('mod-err').textContent = ''; $('mod-key').value = '';
+        if (sessionStorage.getItem(SES) === MOD_HASH) show(); else { $('mod-body').classList.add('hidden'); $('mod-login').classList.remove('hidden'); }
+      }
+      async function unlock() {
+        if (!window.crypto || !crypto.subtle) { $('mod-err').textContent = 'Needs https:// or localhost.'; return; }
+        const h = await sha('stiku-mod:' + $('mod-key').value);
+        if (h !== MOD_HASH) { $('mod-err').textContent = 'Wrong moderator key.'; return; }
+        sessionStorage.setItem(SES, h); show();
+      }
+      $('nav-mod').onclick = open; $('m-mod').onclick = open; $('mod-go').onclick = unlock;
+      $('mod-key').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+      $('mod-close').onclick = () => $('mod-modal').classList.replace('flex', 'hidden');
+      setInterval(() => { if (!$('mod-modal').classList.contains('hidden') && !$('mod-body').classList.contains('hidden')) refreshMod(); }, 4000);
+    })();
+  </script>
+  <script>
+    // Shows whether accounts are shared (server) or stored only in this browser (local).
+    (() => {
+      const $ = id => document.getElementById(id);
+      Net.ready.then(() => {
+        const on = Net.on;
+        $('mode-badge').textContent = on ? '🟢 Server connected' : '🟠 Local only'; $('mode-badge').title = on ? 'Accounts, balances, tips and promo codes are shared by everyone using this server.' : 'Accounts exist only in this browser. Open the site through your server to share them.';
+        $('m-mode').textContent = on ? '🟢' : '🟠';
+        const box = $('auth-mode'); box.classList.remove('hidden');
+        if (on) { box.className = 'text-[11px] font-bold rounded-lg px-3 py-2 bg-emerald-950/60 text-emerald-300'; box.textContent = '🟢 Connected to the casino server — your account works on every device.'; }
+        else { box.className = 'text-[11px] font-bold rounded-lg px-3 py-2 bg-amber-950/60 text-amber-300'; box.textContent = '🟠 Local mode: accounts, balances, tips and promo codes exist only in THIS browser. To share them between devices, open the site through your server (node server.js).'; }
+      });
+    })();
+  </script>
+</body>
+</html>
