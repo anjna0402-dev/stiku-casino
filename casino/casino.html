@@ -14,6 +14,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <script>
+    // Global balance variable for all games to use safely
+let balance = 0;
+
+// Safe balance updater that handles data.me.balance, data.balance, and updates the global variable
+function updateBalance(data) {
+  const rawBal = (data && data.me && typeof data.me.balance !== 'undefined') 
+    ? data.me.balance 
+    : (data && typeof data.balance !== 'undefined') 
+      ? data.balance 
+      : balance;
+      
+  const safeBal = Number(rawBal);
+  balance = isNaN(safeBal) ? 0 : safeBal; // Updates the global balance variable securely
+  
+  const el = document.getElementById('balance-display');
+  if (el) {
+    el.innerText = `$${balance.toFixed(2)}`;
+  }
+  return balance;
+}
     // Safe global balance updater — handles data.me.balance, data.balance, and fallbacks
 function updateBalance(data) {
   const rawBal = (data && data.me && typeof data.me.balance !== 'undefined') 
